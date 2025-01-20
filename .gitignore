@@ -1,0 +1,11 @@
+# macOS system files
+.DS_Store
+
+# Node.js/Vue.js files (if calculator-vue uses Vue)
+node_modules/
+dist/
+
+# IDE/Editor files
+.vscode/
+*.log
+
