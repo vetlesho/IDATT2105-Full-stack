@@ -6,7 +6,7 @@
         <div class="buttons">
             <button class="funButton" @click="clearInput">C</button>
             <button class="funButton" @click="delInput">DEL</button>
-            <button class="funButton" @click="divideThousand">%</button>
+            <button class="funButton" @click="clearLog">C-log</button>
             <button class="funButton" @click="appendToInput('/')">/</button>
 
             <button class="numButton" @click="appendToInput(7)">7</button>
@@ -29,13 +29,18 @@
             <button class="funButton" @click="changeValue()">+/-</button>
             <button class="resButton" @click="calculateResult">=</button>
         </div>
-        <div class="error-message" v-if="showError">
+        <div class="error-message" v-if="showError"> /** conditional rendering v-if */
             {{ errorMessage }}
         </div>
         <AlertPopup :message="alertMessage" :show="showAlert" @close-alert="closeAlert" />
     </div>
     <div class="output">
         <h3>Logg:</h3>
+        <div class="outputLog">
+            <p v-for="(entry, index) in calculationLog" :key="index">
+                {{ entry }}
+            </p>
+        </div>
     </div>
 </template>
 
@@ -51,6 +56,7 @@ export default {
             input: '',
             showAlert: false,
             alertMessage: '',
+            calculationLog: [],
         };
     },
     methods: {
@@ -68,6 +74,9 @@ export default {
         },
         delInput() {
             this.input = this.input.slice(0, -1);
+        },
+        clearLog() {
+            this.calculationLog = [];
         },
         changeValue() {
             if (this.input !== '' && !isNaN(this.input)) {
@@ -94,6 +103,7 @@ export default {
             try {
                 this.validateExpression(this.input);
                 this.checkDivisionByZero(this.input);
+                this.calculationLog.unshift(`${this.input} = ${eval(this.input).toString()}`);
                 this.input = eval(this.input).toString();
             } catch (error) {
                 this.showAlertPopup(error);
@@ -135,14 +145,14 @@ export default {
 .buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    justify-content: space-between;
     width: 100%;
+    gap: 10px;
 }
 
 button {
-    padding: 24px;
-    margin: 5px;
-    font-size: 20px;
+    aspect-ratio: 1;
+    padding: 5px;
+    font-size: 25px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -170,7 +180,7 @@ button:hover {
 .output {
     background-color: #4d4d4d;
     padding: 10px;
-    min-height: 100px;
+    min-height: 75px;
     border: 2px solid #333;
     border-radius: 10px;
 }
@@ -178,6 +188,12 @@ button:hover {
 .output h3 {
     text-align: left;
     margin-top: 0px;
+    color: white;
+}
+
+.outputLog p {
+    margin: 2px 0;
+    text-align: left;
     color: white;
 }
 </style>
