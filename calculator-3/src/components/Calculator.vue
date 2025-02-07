@@ -1,45 +1,47 @@
 <template>
-    <div class="calculator">
-        <div class="display">
-            <input v-model="input" disabled />
+    <div class="calculator-container">
+        <div class="calculator">
+            <div class="display">
+                <input v-model="input" disabled />
+            </div>
+            <div class="buttons">
+                <button class="funButton" @click="clearInput">C</button>
+                <button class="funButton" @click="delInput">DEL</button>
+                <button class="funButton" @click="clearLog">C-log</button>
+                <button class="funButton" @click="appendToInput('/')">/</button>
+
+                <button class="numButton" @click="appendToInput(7)">7</button>
+                <button class="numButton" @click="appendToInput(8)">8</button>
+                <button class="numButton" @click="appendToInput(9)">9</button>
+                <button class="funButton" @click="appendToInput('*')">*</button>
+
+                <button class="numButton" @click="appendToInput(4)">4</button>
+                <button class="numButton" @click="appendToInput(5)">5</button>
+                <button class="numButton" @click="appendToInput(6)">6</button>
+                <button class="funButton" @click="appendToInput('-')">-</button>
+
+                <button class="numButton" @click="appendToInput(1)">1</button>
+                <button class="numButton" @click="appendToInput(2)">2</button>
+                <button class="numButton" @click="appendToInput(3)">3</button>
+                <button class="funButton" @click="appendToInput('+')">+</button>
+
+                <button class="numButton" @click="appendToInput(0)">0</button>
+                <button class="numButton" @click="appendToInput('.')">.</button>
+                <button class="funButton" @click="changeValue()">+/-</button>
+                <button class="resButton" @click="calculateResult">=</button>
+            </div>
+            <div class="error-message" v-if="showError"> /** conditional rendering v-if */
+                {{ errorMessage }}
+            </div>
+            <AlertPopup :message="alertMessage" :show="showAlert" @close-alert="closeAlert" />
         </div>
-        <div class="buttons">
-            <button class="funButton" @click="clearInput">C</button>
-            <button class="funButton" @click="delInput">DEL</button>
-            <button class="funButton" @click="clearLog">C-log</button>
-            <button class="funButton" @click="appendToInput('/')">/</button>
-
-            <button class="numButton" @click="appendToInput(7)">7</button>
-            <button class="numButton" @click="appendToInput(8)">8</button>
-            <button class="numButton" @click="appendToInput(9)">9</button>
-            <button class="funButton" @click="appendToInput('*')">*</button>
-
-            <button class="numButton" @click="appendToInput(4)">4</button>
-            <button class="numButton" @click="appendToInput(5)">5</button>
-            <button class="numButton" @click="appendToInput(6)">6</button>
-            <button class="funButton" @click="appendToInput('-')">-</button>
-
-            <button class="numButton" @click="appendToInput(1)">1</button>
-            <button class="numButton" @click="appendToInput(2)">2</button>
-            <button class="numButton" @click="appendToInput(3)">3</button>
-            <button class="funButton" @click="appendToInput('+')">+</button>
-
-            <button class="numButton" @click="appendToInput(0)">0</button>
-            <button class="numButton" @click="appendToInput('.')">.</button>
-            <button class="funButton" @click="changeValue()">+/-</button>
-            <button class="resButton" @click="calculateResult">=</button>
-        </div>
-        <div class="error-message" v-if="showError"> /** conditional rendering v-if */
-            {{ errorMessage }}
-        </div>
-        <AlertPopup :message="alertMessage" :show="showAlert" @close-alert="closeAlert" />
-    </div>
-    <div class="output">
-        <h3>Logg:</h3>
-        <div class="outputLog">
-            <p v-for="(entry, index) in calculationLog" :key="index">
-                {{ entry }}
-            </p>
+        <div class="output">
+            <h3>Logg:</h3>
+            <div class="outputLog">
+                <p v-for="(entry, index) in calculationLog" :key="index">
+                    {{ entry }}
+                </p>
+            </div>
         </div>
     </div>
 </template>
@@ -121,6 +123,12 @@ export default {
 </script>
 
 <style scoped>
+.calculator-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .calculator {
     align-items: center;
     margin: 20px auto;
@@ -180,9 +188,20 @@ button:hover {
 .output {
     background-color: #4d4d4d;
     padding: 10px;
-    min-height: 75px;
+    min-height: 150px;
+    max-height: 150px;
     border: 2px solid #333;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.outputLog {
+    overflow-y: auto;
+    max-height: 150px;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #4d4d4d;
 }
 
 .output h3 {
@@ -192,7 +211,8 @@ button:hover {
 }
 
 .outputLog p {
-    margin: 2px 0;
+    margin: 2px;
+    margin-top: 0px;
     text-align: left;
     color: white;
 }

@@ -7,7 +7,7 @@
 
 <script>
 import Calculator from './components/Calculator.vue';
-import ContactForm from './components/contactform/ContactForm.vue';
+import ContactForm from './components/ContactForm.vue';
 
 export default {
   name: 'App',
