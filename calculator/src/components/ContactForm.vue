@@ -1,5 +1,5 @@
 <template>
-  <div class="ContactForm">
+  <div class="contactForm">
       <h1>Kontaktskjema</h1>
   </div>
 </template>
@@ -8,4 +8,10 @@
 export default {}
 </script>
 
-<style scoped></style>
+
+<style scoped>
+.contactform {
+  padding: 20px;
+  background-color: white;
+}
+</style>

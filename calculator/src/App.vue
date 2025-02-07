@@ -1,19 +1,19 @@
 <template>
-  <div id="app">
-    <Calculator/>
-    <ContactForm/>
-  </div>
+  <Navigation v-if="showNavigation"/>
+  <router-view></router-view>
 </template>
 
 <script>
-import Calculator from './components/Calculator.vue';
-import ContactForm from './components/ContactForm.vue';
+import Navigation from './components/NavigationHeader.vue'
 
 export default {
-  name: 'App',
   components: {
-    Calculator,
-    ContactForm,
+    Navigation
   },
-};
+  computed: {
+    showNavigation() {
+      return this.$route.path !== '/';
+    }
+  }
+}
 </script>
