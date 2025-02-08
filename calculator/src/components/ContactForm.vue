@@ -25,21 +25,26 @@
 </template>
 
 <script>
+import AlertPopup from './AlertPopup.vue';
+import { useUserStore } from '../stores/userStore';
 import useValidate from '@vuelidate/core';
 import { required, email, minLength, helpers } from '@vuelidate/validators';
 import { reactive, computed } from 'vue';
-import AlertPopup from './AlertPopup.vue';
+import axios from 'axios';
+
 
 export default {
   components: {
     AlertPopup,
   },
   setup() {
+    const userStore = useUserStore();
+
     const state = reactive({
-      name: '',
-      email: '',
+      name: userStore.name,
+      email: userStore.email,
       feedback: '',
-    })
+    });
 
     const mustBeLetters = helpers.regex(/^[A-Za-z\s]+$/)
 
@@ -59,7 +64,8 @@ export default {
 
     return {
       state,
-      v$
+      v$,
+      userStore,
     }
   },
   data() {
@@ -68,19 +74,36 @@ export default {
     }
   },
   methods: {
-    submitForm() {
-      //console.log(this.v$);
+    async submitForm() {
       this.v$.$validate();
+
       if (!this.v$.$error) {
-        this.alertMessage = 'Form successfully submitted!'
-        this.$refs.alertPopup.show() // Call show() on the alert component
+        try {
+          // Send form data to mock backend
+          const response = await axios.post('http://localhost:3000/feedback', {
+            name: this.state.name,
+            email: this.state.email,
+            feedback: this.state.feedback,
+          });
+
+          if (response.status === 201) {
+            // Set success message directly
+            this.alertMessage = "Thank you for your feedback! Form submitted successfully.";
+            this.$refs.alertPopup.show();
+
+            // Save user data and reset form
+            this.userStore.setUserData(this.state.name, this.state.email);
+            this.state.feedback = '';
+            this.v$.$reset();
+          }
+        } catch (error) {
+          this.alertMessage = "Error submitting feedback. Please try again.";
+          this.$refs.alertPopup.show();
+          console.error('Form submission error:', error);
+        }
       }
-      /*else {
-        this.alertMessage = "Form invalid"
-        this.$refs.alertPopup.show()
-      }*/
-    },
-  },
+    }
+  }
 }
 </script>
 

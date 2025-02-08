@@ -1,0 +1,38 @@
+{
+  "feedback": [
+    {
+      "id": "d4ad",
+      "name": "sdfsdfsdfsdf",
+      "email": "sdfsd@f.dddd",
+      "feedback": "sdfsdfasøjdlhfakjsdhflkjashdf"
+    },
+    {
+      "id": "25de",
+      "name": "Vetle Hodne",
+      "email": "vetlehodne@gmail.com",
+      "feedback": "Halla grov app brur"
+    },
+    {
+      "id": "d02f",
+      "name": "Vetle Hodne",
+      "email": "vetlehodne@gmail.com",
+      "feedback": "herlig jobba mannen"
+    },
+    {
+      "id": "23e8",
+      "name": "Vetle Hodne",
+      "email": "vetlehodne@gmail.com",
+      "feedback": "den funker jo mannen\n:)"
+    },
+    {
+      "id": "7435",
+      "name": "Vetle Hodne",
+      "email": "vetlehodne@gmail.com",
+      "feedback": "2348273457896"
+    }
+  ],
+  "messages": {
+    "success": "Thank you for your feedback! Form submitted successfully.",
+    "error": "Something went wrong. Please try again later."
+  }
+}
