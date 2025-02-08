@@ -34,7 +34,6 @@
           <div class="error-message" v-if="showError"> /** conditional rendering v-if */
               {{ errorMessage }}
           </div>
-          <AlertPopup :message="alertMessage" :show="showAlert" @close-alert="closeAlert" />
       </div>
       <div class="output">
           <h3>Logg:</h3>
@@ -44,6 +43,7 @@
               </p>
           </div>
       </div>
+      <AlertPopup ref="alertPopup" :message="alertMessage" />
   </div>
 </template>
 
@@ -57,7 +57,6 @@ export default {
   data() {
       return {
           input: '',
-          showAlert: false,
           alertMessage: '',
           calculationLog: [],
       };
@@ -114,10 +113,7 @@ export default {
       },
       showAlertPopup(message) {
           this.alertMessage = message;
-          this.showAlert = true;
-      },
-      closeAlert() {
-          this.showAlert = false;
+          this.$refs.alertPopup.show(); // Call show() on the alert component
       },
   },
 };
@@ -127,7 +123,6 @@ export default {
 .calculator-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
 .calculator {

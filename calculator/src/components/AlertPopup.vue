@@ -1,5 +1,5 @@
 <template>
-  <div class="alert-popup" v-if="show">
+  <div class="alert-popup" v-if="isVisible">
       <div class="alert-content">
           <p>{{ message }}</p>
           <button @click="closeAlert">OK</button>
@@ -9,11 +9,20 @@
 
 <script>
 export default {
-  props: ['message', 'show'],
+  props: ['message'],
+  data() {
+    return {
+      isVisible: false, // Visibility is managed internally
+    };
+  },
   methods: {
-      closeAlert() {
-          this.$emit('close-alert');
-      },
+    show() {
+      this.isVisible = true;
+    },
+    closeAlert() {
+      this.isVisible = false;
+      this.$emit('alert-closed'); // Notify parent if needed
+    },
   },
 };
 </script>

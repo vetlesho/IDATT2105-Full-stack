@@ -57,7 +57,7 @@ export default {
 
 .nav-link {
   padding: 0.6rem 1.2rem;
-  background-color: #666;
+  background-color: #242424;
   color: white;
   text-decoration: none;
   border-radius: 4px;
@@ -66,6 +66,6 @@ export default {
 }
 
 .nav-link:hover {
-  background-color: #242424;
+  background-color: #404040;
 }
 </style>

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Calculator from '@/components/Calculator.vue';
 import ContactForm from '@/components/ContactForm.vue';
-import HomePage from '@/components/HomePage.vue';
+import HomePage from '@/views/HomePage.vue';
 
 const routes = [
   { path: '/', component: HomePage},
