@@ -1,6 +1,6 @@
 <template>
   <div class="home-container">
-    <h1>Welcome to the Calculator App</h1>
+    <h1>This is my calculator!</h1>
     <div class="nav-buttons">
       <router-link to="/Calculator" class="nav-button">Calculator</router-link>
     </div>

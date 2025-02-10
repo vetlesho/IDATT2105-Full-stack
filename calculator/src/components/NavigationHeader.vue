@@ -1,7 +1,7 @@
 <template>
   <nav class="nav-header">
     <div class="nav-content">
-      <h1>Calculator App</h1>
+      <h1>Calculator</h1>
       <div class="nav-links">
         <router-link to="/" class="nav-link">Home</router-link>
         <router-link
@@ -31,7 +31,6 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  background-color: #4d4d4d;
   z-index: 1000;
 }
 

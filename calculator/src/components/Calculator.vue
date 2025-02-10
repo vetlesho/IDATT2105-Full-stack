@@ -127,7 +127,7 @@ export default {
 
 .calculator {
   align-items: center;
-  margin: 20px auto;
+  margin: 10px auto;
   border: 2px solid #333;
   background-color: #242424;
   padding: 10px;
@@ -184,8 +184,8 @@ button:hover {
 .output {
   background-color: #4d4d4d;
   padding: 10px;
-  min-height: 150px;
-  max-height: 150px;
+  min-height: 125px;
+  max-height: 125px;
   border: 2px solid #333;
   border-radius: 10px;
   display: flex;
@@ -194,7 +194,7 @@ button:hover {
 
 .outputLog {
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 125px;
   padding-right: 10px;
   scrollbar-width: thin;
   scrollbar-color: #333 #4d4d4d;
