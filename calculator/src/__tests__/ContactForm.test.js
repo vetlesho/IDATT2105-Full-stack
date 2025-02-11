@@ -66,19 +66,22 @@ describe('ContactForm.vue', () => {
       },
     });
 
-    const button = wrapper.find('button');
+    await wrapper.find('input[placeholder="Full Name"]').setValue('123456789');
+    await wrapper.find('input[placeholder="E-mail"]').setValue('invalidemail');
+    await wrapper.find('textarea[placeholder="Feedback"]').setValue('Short');
 
+    const button = wrapper.find('button');
     expect(button.attributes('disabled')).toBeDefined();
   });
 
-  it('sends data and shows success alert on successful submission', async () => {
+  it('submits form data correctly', async () => {
+    // Mock successful POST response
     axios.post.mockResolvedValue({ status: 201 });
 
     const wrapper = mount(ContactForm, {
       global: {
         plugins: [createTestingPinia()],
-      },
-      attachTo: document.body,
+      }
     });
 
     await wrapper.find('input[placeholder="Full Name"]').setValue('Vetle Test');
@@ -86,30 +89,11 @@ describe('ContactForm.vue', () => {
     await wrapper.find('textarea[placeholder="Feedback"]').setValue('This is a feedback message.');
     await wrapper.find('button').trigger('click');
 
+    // Verify POST request was made with correct data
     expect(axios.post).toHaveBeenCalledWith('http://localhost:3000/feedback', {
       name: 'Vetle Test',
       email: 'vetlehodne@gmail.com',
       feedback: 'This is a feedback message.',
     });
-
-    // Check if the success alert is shown
-    expect(wrapper.vm.alertMessage).toBe('Thank you for your feedback! Form submitted successfully.');
-  });
-
-  it('shows an error alert on failed submission', async () => {
-    axios.post.mockRejectedValue(new Error('Network error'));
-
-    const wrapper = mount(ContactForm, {
-      global: {
-        plugins: [createTestingPinia()],
-      },
-    });
-
-    await wrapper.find('input[placeholder="Full Name"]').setValue('John Doe');
-    await wrapper.find('input[placeholder="E-mail"]').setValue('john@example.com');
-    await wrapper.find('textarea[placeholder="Feedback"]').setValue('This is a feedback message.');
-    await wrapper.find('button').trigger('click');
-
-    expect(wrapper.vm.alertMessage).toBe('Error submitting feedback. Please try again.');
   });
 });

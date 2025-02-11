@@ -12,7 +12,7 @@ export default {
   props: ['message'],
   data() {
     return {
-      isVisible: false, // Visibility is managed internally
+      isVisible: false, 
     };
   },
   methods: {
@@ -21,7 +21,7 @@ export default {
     },
     closeAlert() {
       this.isVisible = false;
-      this.$emit('alert-closed'); // Notify parent if needed
+      this.$emit('alert-closed');
     },
   },
 };

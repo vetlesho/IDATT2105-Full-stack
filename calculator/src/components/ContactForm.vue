@@ -88,7 +88,10 @@ export default {
 
           if (response.status === 201) {
             // Set success message directly
-            this.alertMessage = "Thank you for your feedback! Form submitted successfully.";
+            /*this.alertMessage = "Thank you for your feedback! Form submitted successfully.";
+            this.$refs.alertPopup.show();*/
+            const messageResponse = await axios.get('http://localhost:3000/messages');
+            this.alertMessage = messageResponse.data.success;
             this.$refs.alertPopup.show();
 
             // Save user data and reset form
@@ -97,9 +100,16 @@ export default {
             this.v$.$reset();
           }
         } catch (error) {
+          // set error message directly
           this.alertMessage = "Error submitting feedback. Please try again.";
           this.$refs.alertPopup.show();
           console.error('Form submission error:', error);
+
+          // get message from backend
+          /*const messageResponse = await axios.get('http://localhost:3000/messages');
+          this.alertMessage = messageResponse.data.error;
+          this.$refs.alertPopup.show();
+          console.error('error:', error);*/
         }
       }
     }

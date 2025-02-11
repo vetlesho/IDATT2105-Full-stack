@@ -47,10 +47,40 @@
       "name": "Vetle Hodne",
       "email": "vetle@mail.com",
       "feedback": "funker denne testen eller?\n"
+    },
+    {
+      "id": "f3a8",
+      "name": "Vetle Hodne",
+      "email": "vetle@mail.com",
+      "feedback": "jjhgjhgjhgjh"
+    },
+    {
+      "id": "ec36",
+      "name": "Vetle Hodne",
+      "email": "vetletest@mail.com",
+      "feedback": "ny mail test"
+    },
+    {
+      "id": "767b",
+      "name": "Vetle Hodne",
+      "email": "vetletest@mail.com",
+      "feedback": "ahskdcns,c"
+    },
+    {
+      "id": "fdca",
+      "name": "Vetle Hodne",
+      "email": "vetletest@mail.com",
+      "feedback": "lsjdlskdflkjskdj"
+    },
+    {
+      "id": "153c",
+      "name": "Vetle Hodne",
+      "email": "vetletest@mail.com",
+      "feedback": "kjfdajsdflkjasdf"
     }
   ],
   "messages": {
-    "success": "Thank you for your feedback! Form submitted successfully.",
-    "error": "Something went wrong. Please try again later."
+    "success": "From backend: Thank you for your feedback! Form submitted successfully.",
+    "error": "From backend: Something went wrong. Please try again later."
   }
 }

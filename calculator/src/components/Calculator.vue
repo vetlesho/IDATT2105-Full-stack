@@ -59,6 +59,7 @@ export default {
           input: '',
           alertMessage: '',
           calculationLog: [],
+          showError: false, // for test to not give warnings
       };
   },
   methods: {
