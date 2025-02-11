@@ -77,10 +77,58 @@
       "name": "Vetle Hodne",
       "email": "vetletest@mail.com",
       "feedback": "kjfdajsdflkjasdf"
+    },
+    {
+      "id": "0ce4",
+      "name": "Vetle Hodne",
+      "email": "vetlehodne@gmail.com",
+      "feedback": "Mashalla funker det i chorome"
+    },
+    {
+      "id": "6bcc",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
+    },
+    {
+      "id": "b846",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
+    },
+    {
+      "id": "cf54",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
+    },
+    {
+      "id": "06bf",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
+    },
+    {
+      "id": "0b14",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
+    },
+    {
+      "id": "6122",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
+    },
+    {
+      "id": "5c3a",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
     }
   ],
   "messages": {
-    "success": "From backend: Thank you for your feedback! Form submitted successfully.",
-    "error": "From backend: Something went wrong. Please try again later."
+    "success": "From backend: Form submitted successfully.",
+    "error": "From backend: Something went wrong."
   }
 }

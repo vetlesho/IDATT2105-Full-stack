@@ -10,8 +10,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
-    "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
-    "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@pinia/testing": "^0.1.7",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
     "@vitest/eslint-plugin": "1.1.25",

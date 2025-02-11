@@ -101,7 +101,7 @@ export default {
           }
         } catch (error) {
           // set error message directly
-          this.alertMessage = "Error submitting feedback. Please try again.";
+          this.alertMessage = "From backend: Something went wrong.";
           this.$refs.alertPopup.show();
           console.error('Form submission error:', error);
 
