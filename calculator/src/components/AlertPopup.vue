@@ -12,7 +12,7 @@ export default {
   props: ['message'],
   data() {
     return {
-      isVisible: false, 
+      isVisible: false,
     };
   },
   methods: {
