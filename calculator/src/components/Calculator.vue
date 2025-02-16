@@ -1,121 +1,150 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="calculator-container">
-      <div class="calculator">
-          <div class="display">
-              <input v-model="input" disabled />
-          </div>
-          <div class="buttons">
-              <button class="funButton" @click="clearInput">C</button>
-              <button class="funButton" @click="delInput">DEL</button>
-              <button class="funButton" @click="clearLog">C-log</button>
-              <button class="funButton" @click="appendToInput('/')">/</button>
-
-              <button class="numButton" @click="appendToInput(7)">7</button>
-              <button class="numButton" @click="appendToInput(8)">8</button>
-              <button class="numButton" @click="appendToInput(9)">9</button>
-              <button class="funButton" @click="appendToInput('*')">*</button>
-
-              <button class="numButton" @click="appendToInput(4)">4</button>
-              <button class="numButton" @click="appendToInput(5)">5</button>
-              <button class="numButton" @click="appendToInput(6)">6</button>
-              <button class="funButton" @click="appendToInput('-')">-</button>
-
-              <button class="numButton" @click="appendToInput(1)">1</button>
-              <button class="numButton" @click="appendToInput(2)">2</button>
-              <button class="numButton" @click="appendToInput(3)">3</button>
-              <button class="funButton" @click="appendToInput('+')">+</button>
-
-              <button class="numButton" @click="appendToInput(0)">0</button>
-              <button class="numButton" @click="appendToInput('.')">.</button>
-              <button class="funButton" @click="changeValue()">+/-</button>
-              <button class="resButton" @click="calculateResult">=</button>
-          </div>
-          <div class="error-message" v-if="showError"> /** conditional rendering v-if */
-              {{ errorMessage }}
-          </div>
+    <div class="calculator">
+      <div class="display">
+        <input v-model="input" disabled />
       </div>
-      <div class="output">
-          <h3>Logg:</h3>
-          <div class="outputLog">
-              <p v-for="(entry, index) in calculationLog" :key="index">
-                  {{ entry }}
-              </p>
-          </div>
+      <div class="buttons">
+        <button class="funButton" @click="clearInput">C</button>
+        <button class="funButton" @click="delInput">DEL</button>
+        <button class="funButton" @click="clearLog">C-log</button>
+        <button class="funButton" @click="appendToInput('/')">/</button>
+
+        <button class="numButton" @click="appendToInput(7)">7</button>
+        <button class="numButton" @click="appendToInput(8)">8</button>
+        <button class="numButton" @click="appendToInput(9)">9</button>
+        <button class="funButton" @click="appendToInput('*')">*</button>
+
+        <button class="numButton" @click="appendToInput(4)">4</button>
+        <button class="numButton" @click="appendToInput(5)">5</button>
+        <button class="numButton" @click="appendToInput(6)">6</button>
+        <button class="funButton" @click="appendToInput('-')">-</button>
+
+        <button class="numButton" @click="appendToInput(1)">1</button>
+        <button class="numButton" @click="appendToInput(2)">2</button>
+        <button class="numButton" @click="appendToInput(3)">3</button>
+        <button class="funButton" @click="appendToInput('+')">+</button>
+
+        <button class="numButton" @click="appendToInput(0)">0</button>
+        <button class="numButton" @click="appendToInput('.')">.</button>
+        <button class="funButton" @click="changeValue()">+/-</button>
+        <button class="resButton" @click="calculateResult">=</button>
       </div>
-      <AlertPopup ref="alertPopup" :message="alertMessage" />
+      <div class="error-message" v-if="showError"> /** conditional rendering v-if */
+        {{ errorMessage }}
+      </div>
+    </div>
+    <div class="output">
+      <h3>Logg:</h3>
+      <div class="outputLog">
+        <p v-for="(entry, index) in calculationLog" :key="index">
+          {{ entry }}
+        </p>
+      </div>
+    </div>
+    <AlertPopup ref="alertPopup" :message="alertMessage" />
   </div>
 </template>
 
 <script>
 import AlertPopup from './AlertPopup.vue';
+import axios from 'axios';
 
 export default {
   components: {
-      AlertPopup,
+    AlertPopup,
   },
   data() {
-      return {
-          input: '',
-          alertMessage: '',
-          calculationLog: [],
-          showError: false, // for test to not give warnings
-      };
+    return {
+      input: '',
+      alertMessage: '',
+      calculationLog: [],
+      showError: false, // for test to not give warnings
+    };
   },
   methods: {
-      appendToInput(value) {
-          const operators = ['+', '-', '*', '/', '%', '.'];
-          const lastChar = this.input.slice(-1);
+    appendToInput(value) {
+      const operators = ['+', '-', '*', '/', '%'];
+      // Check if the value is an operator
+      if (operators.includes(value)) {
+        const hasOperator = operators.some(op => this.input.includes(op));
+        if (hasOperator) {
+          return;
+        }
+      }
+      // Don't allow two dots in the same number
+      if (value === '.') {
+        const parts = this.input.split(/[+-/*%]/);
+        const currentNumber = parts[parts.length - 1];
+        if (currentNumber.includes('.')) {
+          return;
+        }
+      }
+      // Don't allow operator as first character (except minus)
+      if (this.input === '' && operators.includes(value) && value !== '-') {
+        return;
+      }
 
-          if (operators.includes(lastChar) && operators.includes(value)) {
-              return;
-          }
-          this.input += value;
-      },
-      clearInput() {
-          this.input = '';
-      },
-      delInput() {
-          this.input = this.input.slice(0, -1);
-      },
-      clearLog() {
-          this.calculationLog = [];
-      },
-      changeValue() {
-          if (this.input !== '' && !isNaN(this.input)) {
-              const num = parseFloat(this.input);
-              this.input = (-num).toString();
-          }
-      },
-      validateExpression(input) {
-          const invalidEnd = /[+\-*/%]$/;
-          if (invalidEnd.test(input)) {
-              throw new Error('Expression cannot end with an operator');
-          }
-      },
-      checkDivisionByZero(input) {
-          if (input.includes('/')) {
-              const parts = input.split('/');
-              const denominator = eval(parts[parts.length - 1]);
-              if (denominator == 0) {
-                  throw new Error('Cannot divide by zero');
-              }
-          }
-      },
-      calculateResult() {
-          try {
-              this.validateExpression(this.input);
-              this.checkDivisionByZero(this.input);
-              this.calculationLog.unshift(`${this.input} = ${eval(this.input).toString()}`);
-              this.input = eval(this.input).toString();
-          } catch (error) {
-              this.showAlertPopup(error);
-          }
-      },
-      showAlertPopup(message) {
-          this.alertMessage = message;
-          this.$refs.alertPopup.show(); // Call show() on the alert component
-      },
+      this.input += value;
+    },
+    clearInput() {
+      this.input = '';
+    },
+    delInput() {
+      this.input = this.input.slice(0, -1);
+    },
+    clearLog() {
+      this.calculationLog = [];
+    },
+    changeValue() {
+      if (this.input !== '' && !isNaN(this.input)) {
+        const num = parseFloat(this.input);
+        this.input = (-num).toString();
+      }
+    },
+    validateExpression(input) {
+      const invalidEnd = /[+\-*/%]$/;
+      if (invalidEnd.test(input)) {
+        throw new Error('Expression cannot end with an operator');
+      }
+    },
+    checkDivisionByZero(input) {
+      if (input.includes('/')) {
+        const parts = input.split('/');
+        const denominator = eval(parts[parts.length - 1]);
+        if (denominator == 0) {
+          throw new Error('Cannot divide by zero');
+        }
+      }
+    },
+    calculateResult() {
+      try {
+        this.validateExpression(this.input);
+        this.checkDivisionByZero(this.input);
+
+        const requestBody = {
+          num1: parseFloat(this.input.split(/[+-/*]/)[0]), // First number
+          num2: parseFloat(this.input.split(/[+-/*]/)[1]), // Second number
+          operator: this.input.match(/[+-/*]/)[0], // Operator
+        };
+
+        axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
+          .then(response => {
+            this.calculationLog.unshift(`${this.input} = ${response.data.result}`);
+            this.input = response.data.result.toString();
+          })
+          .catch(error => {
+            this.showAlertPopup("Error: " + error.message);
+          });
+      } catch (error) {
+        this.showAlertPopup(error);
+      }
+    },
+    showAlertPopup(message) {
+      this.alertMessage = message;
+      this.$refs.alertPopup.show(); // Call show() on the alert component
+    },
   },
 };
 </script>

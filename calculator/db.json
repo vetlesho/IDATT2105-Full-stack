@@ -83,6 +83,12 @@
       "name": "Vetle Hodne",
       "email": "vetletest@mail.com",
       "feedback": "rwkøjfasldkjhflkjs"
+    },
+    {
+      "id": "ba02",
+      "name": "Test User",
+      "email": "test@example.com",
+      "feedback": "My message testtest"
     }
   ],
   "messages": {
