@@ -7,5 +7,6 @@ dist/
 
 # IDE/Editor files
 .vscode/
+.idea/
 *.log
 
