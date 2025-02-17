@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/calculator")
-@CrossOrigin(origins = "http://localhost:5173") // Allow Vue frontend to call API
+@CrossOrigin(origins = "http://localhost:5173")
 public class CalculatorController {
-
   private static final Logger logger = LoggerFactory.getLogger(CalculatorController.class);
   private final CalculatorService calculatorService;
 
@@ -22,8 +21,9 @@ public class CalculatorController {
 
   @PostMapping("/calculate")
   public ResponseEntity<CalculationResult> calculate(@RequestBody CalculationRequest request) {
-    logger.info("Received calculation request: {} {} {}", request.getNum1(), request.getOperator(), request.getNum2());
+    logger.info("Received calculation request: {}", request.getExpression());
     double result = calculatorService.calculate(request);
+    logger.info("Calculated result: {}", result);
     return ResponseEntity.ok(new CalculationResult(result));
   }
 }

@@ -66,24 +66,37 @@ export default {
   methods: {
     appendToInput(value) {
       const operators = ['+', '-', '*', '/', '%'];
+      const lastChar = this.input.slice(-1);
+
       // Check if the value is an operator
       if (operators.includes(value)) {
-        const hasOperator = operators.some(op => this.input.includes(op));
-        if (hasOperator) {
+        const isMultiplyOrDivide = ['*', '/'].includes(lastChar);
+        const isOperator = operators.includes(lastChar);
+
+        // Prevent operator after operator (except minus after * or /)
+        if (isOperator) {
+          if (value === '-' && isMultiplyOrDivide) {
+            this.input += value;
+          }
           return;
         }
+
+        // Don't allow operators at start (except minus)
+        if (this.input === '' && value !== '-') {
+          return;
+        }
+
+        this.input += value;
+        return;
       }
-      // Don't allow two dots in the same number
+
+      // Handle non-operator inputs (numbers and decimal point)
       if (value === '.') {
         const parts = this.input.split(/[+-/*%]/);
         const currentNumber = parts[parts.length - 1];
         if (currentNumber.includes('.')) {
           return;
         }
-      }
-      // Don't allow operator as first character (except minus)
-      if (this.input === '' && operators.includes(value) && value !== '-') {
-        return;
       }
 
       this.input += value;
@@ -124,9 +137,7 @@ export default {
         this.checkDivisionByZero(this.input);
 
         const requestBody = {
-          num1: parseFloat(this.input.split(/[+-/*]/)[0]), // First number
-          num2: parseFloat(this.input.split(/[+-/*]/)[1]), // Second number
-          operator: this.input.match(/[+-/*]/)[0], // Operator
+          expression: this.input
         };
 
         axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
