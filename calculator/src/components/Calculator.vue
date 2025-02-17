@@ -29,7 +29,7 @@
         <button class="numButton" @click="appendToInput(0)">0</button>
         <button class="numButton" @click="appendToInput('.')">.</button>
         <button class="funButton" @click="changeValue()">+/-</button>
-        <button class="resButton" @click="calculateResult">=</button>
+        <button class="resButton" @click="calculate">=</button>
       </div>
       <div class="error-message" v-if="showError"> /** conditional rendering v-if */
         {{ errorMessage }}
@@ -43,7 +43,7 @@
         </p>
       </div>
     </div>
-    <AlertPopup ref="alertPopup" :message="alertMessage" />
+    <AlertPopup ref="alertPopup"/>
   </div>
 </template>
 
@@ -58,7 +58,6 @@ export default {
   data() {
     return {
       input: '',
-      alertMessage: '',
       calculationLog: [],
       showError: false, // for test to not give warnings
     };
@@ -116,46 +115,20 @@ export default {
         this.input = (-num).toString();
       }
     },
-    validateExpression(input) {
-      const invalidEnd = /[+\-*/%]$/;
-      if (invalidEnd.test(input)) {
-        throw new Error('Expression cannot end with an operator');
-      }
-    },
-    checkDivisionByZero(input) {
-      if (input.includes('/')) {
-        const parts = input.split('/');
-        const denominator = eval(parts[parts.length - 1]);
-        if (denominator == 0) {
-          throw new Error('Cannot divide by zero');
-        }
-      }
-    },
-    calculateResult() {
-      try {
-        this.validateExpression(this.input);
-        this.checkDivisionByZero(this.input);
+    calculate() {
+      const requestBody = {
+        expression: this.input
+      };
 
-        const requestBody = {
-          expression: this.input
-        };
-
-        // HTTP POST-request sendes med JSON i requestBody
-        axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
-          .then(response => { // Venter på svar fra backend
-            this.calculationLog.unshift(`${this.input} = ${response.data.result}`);
-            this.input = response.data.result.toString();
-          })
-          .catch(error => {
-            this.showAlertPopup("Error: " + error.message);
-          });
-      } catch (error) {
-        this.showAlertPopup(error);
-      }
-    },
-    showAlertPopup(message) {
-      this.alertMessage = message;
-      this.$refs.alertPopup.show(); // Call show() on the alert component
+      axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
+        .then(response => {
+          this.calculationLog.unshift(`${this.input} = ${response.data.result}`);
+          this.input = response.data.result.toString();
+        })
+        .catch(error => {
+          const errorMessage = error.response?.data?.error || 'Network error. Please try again.';
+          this.$refs.alertPopup.showAlert("Error: " + errorMessage);
+        });
     },
   },
 };
@@ -228,6 +201,7 @@ button:hover {
   padding: 10px;
   min-height: 125px;
   max-height: 125px;
+  max-width: 380px;
   border: 2px solid #333;
   border-radius: 10px;
   display: flex;

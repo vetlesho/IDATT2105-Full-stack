@@ -3,45 +3,50 @@ import { describe, it, expect } from 'vitest'
 import AlertPopup from '@/components/AlertPopup.vue'
 
 describe('AlertPopup.vue', () => {
-  it('renders message when visible', async () => {
-    const wrapper = mount(AlertPopup, {
-      props: {
-        message: 'Test message'
-      }
-    })
+  it('shows alert with message', async () => {
+    const wrapper = mount(AlertPopup)
+    const testMessage = 'Test message'
 
     // Initially hidden
-    expect(wrapper.isVisible()).toBe(false)
+    expect(wrapper.vm.isVisible).toBe(false)
 
-    // Show the alert
-    await wrapper.vm.show()
-    expect(wrapper.isVisible()).toBe(true)
-    expect(wrapper.text()).toContain('Test message')
+    // Show alert with message
+    await wrapper.vm.showAlert(testMessage)
+
+    expect(wrapper.vm.isVisible).toBe(true)
+    expect(wrapper.vm.message).toBe(testMessage)
+    expect(wrapper.text()).toContain(testMessage)
   })
 
-  it('emits event when closed', async () => {
-    const wrapper = mount(AlertPopup, {
-      props: {
-        message: 'Test message'
-      }
-    })
+  it('closes alert when OK button is clicked', async () => {
+    const wrapper = mount(AlertPopup)
 
-    await wrapper.vm.show()
+    // Show the alert first
+    await wrapper.vm.showAlert('Test message')
+    expect(wrapper.vm.isVisible).toBe(true)
+
+    // Click the close button
     await wrapper.find('button').trigger('click')
 
-    // Check if alert is hidden
-    expect(wrapper.isVisible()).toBe(false)
-    // Check if event was emitted
+    expect(wrapper.vm.isVisible).toBe(false)
     expect(wrapper.emitted('alert-closed')).toBeTruthy()
   })
 
-  it('handles empty message prop', () => {
-    const wrapper = mount(AlertPopup, {
-      props: {
-        message: ''
-      }
-    })
+  it('updates message when showing new alert', async () => {
+    const wrapper = mount(AlertPopup)
 
-    expect(() => wrapper.vm.show()).not.toThrow()
+    await wrapper.vm.showAlert('First message')
+    expect(wrapper.vm.message).toBe('First message')
+
+    await wrapper.vm.showAlert('Second message')
+    expect(wrapper.vm.message).toBe('Second message')
+  })
+
+  it('handles empty message', async () => {
+    const wrapper = mount(AlertPopup)
+
+    await wrapper.vm.showAlert('')
+    expect(wrapper.vm.isVisible).toBe(true)
+    expect(wrapper.vm.message).toBe('')
   })
 })

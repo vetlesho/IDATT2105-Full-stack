@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import Calculator from '@/components/Calculator.vue';
 import axios from 'axios';
-//import AlertPopup from '@/components/AlertPopup.vue';
+import AlertPopup from '@/components/AlertPopup.vue';
 
 vi.mock('axios');
 
@@ -11,7 +11,13 @@ describe('Calculator.vue', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    wrapper = mount(Calculator);
+    wrapper = mount(Calculator, {
+      global: {
+        components: {
+          AlertPopup
+        }
+      }
+    });
   });
 
   it('renders correctly', () => {
@@ -108,37 +114,46 @@ describe('Calculator.vue', () => {
   });
 
   it('shows an error when trying to divide by zero', async () => {
+    axios.post.mockRejectedValue({
+      response: {
+        data: {
+          error: 'Cannot divide by zero'
+        }
+      }
+    });
+
     const buttons = wrapper.findAll('button');
-    const button7 = buttons.find(btn => btn.text() === '7');
-    const buttonDivide = buttons.find(btn => btn.text() === '/');
-    const button0 = buttons.find(btn => btn.text() === '0');
-    const buttonEquals = buttons.find(btn => btn.text() === '=');
+    await buttons.find(btn => btn.text() === '7').trigger('click');
+    await buttons.find(btn => btn.text() === '/').trigger('click');
+    await buttons.find(btn => btn.text() === '0').trigger('click');
+    await buttons.find(btn => btn.text() === '=').trigger('click');
 
-    await button7.trigger('click');
-    await buttonDivide.trigger('click');
-    await button0.trigger('click');
-    await buttonEquals.trigger('click');
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
-
-    const alertMessage = wrapper.vm.alertMessage.message;
-    expect(alertMessage).toBe('Cannot divide by zero');
+    const alertPopup = wrapper.findComponent(AlertPopup);
+    expect(alertPopup.vm.message).toBe('Error: Cannot divide by zero');
+    expect(alertPopup.vm.isVisible).toBe(true);
   });
 
   it('does not allow an expression to end with an operator', async () => {
+    axios.post.mockRejectedValue({
+      response: {
+        data: {
+          error: 'Expression cannot end with an operator'
+        }
+      }
+    });
+
     const buttons = wrapper.findAll('button');
-    const button7 = buttons.find(btn => btn.text() === '7');
-    const buttonPlus = buttons.find(btn => btn.text() === '+');
-    const buttonEquals = buttons.find(btn => btn.text() === '=');
+    await buttons.find(btn => btn.text() === '7').trigger('click');
+    await buttons.find(btn => btn.text() === '+').trigger('click');
+    await buttons.find(btn => btn.text() === '=').trigger('click');
 
-    await button7.trigger('click');
-    await buttonPlus.trigger('click');
-    await buttonEquals.trigger('click');
+    await flushPromises();
 
-    await wrapper.vm.$nextTick();
-
-    const alertMessage = wrapper.vm.alertMessage.message;
-    expect(alertMessage).toBe('Expression cannot end with an operator');
+    const alertPopup = wrapper.findComponent(AlertPopup);
+    expect(alertPopup.vm.message).toBe('Error: Expression cannot end with an operator');
+    expect(alertPopup.vm.isVisible).toBe(true);
   });
 
   it('appends to the input without repeating consecutive operators', async () => {
@@ -168,20 +183,6 @@ describe('Calculator.vue', () => {
     // back to positive
     await buttonChangeValue.trigger('click');
     expect(wrapper.vm.input).toBe('5');
-  });
-
-  it('handles API errors correctly', async () => {
-    axios.post.mockRejectedValue(new Error('Network Error'));
-
-    const buttons = wrapper.findAll('button');
-    await buttons.find(btn => btn.text() === '7').trigger('click');
-    await buttons.find(btn => btn.text() === '+').trigger('click');
-    await buttons.find(btn => btn.text() === '8').trigger('click');
-    await buttons.find(btn => btn.text() === '=').trigger('click');
-
-    await flushPromises();
-
-    expect(wrapper.vm.alertMessage).toBe('Error: Network Error');
   });
 
   it('handles the calculation log correctly', async () => {

@@ -68,49 +68,32 @@ export default {
       userStore,
     }
   },
-  data() {
-    return {
-      alertMessage: '',
-    }
-  },
   methods: {
     async submitForm() {
       this.v$.$validate();
 
-      if (!this.v$.$error) {
-        try {
-          // Send form data to mock backend
-          const response = await axios.post('http://localhost:3000/feedback', {
-            name: this.state.name,
-            email: this.state.email,
-            feedback: this.state.feedback,
-          });
+      if (this.v$.$error) {
+        return;
+      }
 
-          if (response.status === 201) {
-            // Set success message directly
-            /*this.alertMessage = "Thank you for your feedback! Form submitted successfully.";
-            this.$refs.alertPopup.show();*/
-            const messageResponse = await axios.get('http://localhost:3000/messages');
-            this.alertMessage = messageResponse.data.success;
-            this.$refs.alertPopup.show();
+      try {
+        const response = await axios.post('http://localhost:3000/feedback', {
+          name: this.state.name,
+          email: this.state.email,
+          feedback: this.state.feedback,
+        });
 
-            // Save user data and reset form
-            this.userStore.setUserData(this.state.name, this.state.email);
-            this.state.feedback = '';
-            this.v$.$reset();
-          }
-        } catch (error) {
-          // set error message directly
-          this.alertMessage = "From backend: Something went wrong.";
-          this.$refs.alertPopup.show();
-          console.error('Form submission error:', error);
-
-          // get message from backend
-          /*const messageResponse = await axios.get('http://localhost:3000/messages');
-          this.alertMessage = messageResponse.data.error;
-          this.$refs.alertPopup.show();
-          console.error('error:', error);*/
+        if (response.status === 201) {
+          const messageResponse = await axios.get('http://localhost:3000/messages');
+          this.$refs.alertPopup.showAlert(messageResponse.data.success);
+          this.userStore.setUserData(this.state.name, this.state.email);
+          this.state.feedback = '';
+          this.v$.$reset();
         }
+      } catch (error) {
+        //const messageResponse = await axios.get('http://localhost:3000/messages');
+        //this.$refs.alertPopup.showAlert(messageResponse.data.error);
+        console.error('Form submission error:', error);
       }
     }
   }

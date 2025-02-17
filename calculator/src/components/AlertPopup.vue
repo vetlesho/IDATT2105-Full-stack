@@ -9,14 +9,15 @@
 
 <script>
 export default {
-  props: ['message'],
   data() {
     return {
       isVisible: false,
+      message: '',
     };
   },
   methods: {
-    show() {
+    showAlert(message) {
+      this.message = message;
       this.isVisible = true;
     },
     closeAlert() {

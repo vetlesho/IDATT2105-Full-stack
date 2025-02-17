@@ -15,3 +15,7 @@ calculator-backend/ \
 │   │   ├──  CalculatorBackendApplication  <-- Backend application\
 │── pom.xml\
 │── application.properties\
+
+# Swagger
+Use swagger to see endpoints directly, and have interactive API documentation: 
+http://localhost:8080/swagger-ui.html

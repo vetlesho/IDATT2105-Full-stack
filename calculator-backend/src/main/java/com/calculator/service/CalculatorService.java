@@ -1,6 +1,7 @@
 package com.calculator.service;
 
 import com.calculator.model.CalculationRequest;
+import com.calculator.model.CalculatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class CalculatorService {
     logger.info("Calculating expression: {}", expression);
 
     if (expression.isEmpty()) {
-      expression = "0";
+      throw new CalculatorException("Expression is empty");
     }
 
     try {
@@ -30,6 +31,10 @@ public class CalculatorService {
     // Split expression into numbers and operators while preserving negative signs
     List<String> tokens = tokenizeExpression(expression);
     logger.info("Tokenized expression: {}", tokens);
+    if (!tokens.isEmpty() && isOperator(tokens.get(tokens.size() - 1).charAt(0))) {
+      logger.error("Expression ends with an operator");
+      throw new CalculatorException("Expression cannot end with an operator");
+    }
 
     return evaluateExpression(tokens);
   }
@@ -64,7 +69,7 @@ public class CalculatorService {
     return tokens;
   }
 
-  private double evaluateExpression(List<String> tokens) {
+  private double evaluateExpression(List<String> tokens) throws IllegalArgumentException{
     // First handle multiplication and division
     for (int i = 1; i < tokens.size() - 1; i += 2) {
       String operator = tokens.get(i);
@@ -77,7 +82,8 @@ public class CalculatorService {
           result = num1 * num2;
         } else {
           if (num2 == 0) {
-            throw new IllegalArgumentException("Cannot divide by zero");
+            logger.error("Division by zero attempted");
+            throw new CalculatorException("Cannot divide by zero");
           }
           result = num1 / num2;
         }
