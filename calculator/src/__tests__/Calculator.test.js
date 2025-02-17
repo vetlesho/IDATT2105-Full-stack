@@ -1,17 +1,17 @@
-import { mount } from '@vue/test-utils';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import Calculator from '@/components/Calculator.vue';
+import axios from 'axios';
 //import AlertPopup from '@/components/AlertPopup.vue';
+
+vi.mock('axios');
 
 describe('Calculator.vue', () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = mount(Calculator, {
-      global: {
-        plugins: []
-      }
-    });
+    vi.clearAllMocks();
+    wrapper = mount(Calculator);
   });
 
   it('renders correctly', () => {
@@ -42,38 +42,68 @@ describe('Calculator.vue', () => {
   });
 
   it('calculates addition correctly', async () => {
+    axios.post.mockResolvedValue({
+      data: {
+        result: 15
+      }
+    });
+
     const buttons = wrapper.findAll('button');
     await buttons.find(btn => btn.text() === '7').trigger('click');
     await buttons.find(btn => btn.text() === '+').trigger('click');
     await buttons.find(btn => btn.text() === '8').trigger('click');
     await buttons.find(btn => btn.text() === '=').trigger('click');
+    await flushPromises();
+
     expect(wrapper.vm.input).toBe('15');
+    expect(axios.post).toHaveBeenCalledWith(
+      'http://localhost:8080/api/calculator/calculate',
+      { expression: '7+8' }
+    );
   });
 
   it('calculates subtraction correctly', async () => {
+    axios.post.mockResolvedValue({
+      data: { result: 5 }
+    });
+
     const buttons = wrapper.findAll('button');
     await buttons.find(btn => btn.text() === '9').trigger('click');
     await buttons.find(btn => btn.text() === '-').trigger('click');
     await buttons.find(btn => btn.text() === '4').trigger('click');
     await buttons.find(btn => btn.text() === '=').trigger('click');
+    await flushPromises();
+
     expect(wrapper.vm.input).toBe('5');
   });
 
   it('calculates multiplication correctly', async () => {
+    axios.post.mockResolvedValue({
+      data: { result: 18 }
+    });
+
     const buttons = wrapper.findAll('button');
     await buttons.find(btn => btn.text() === '6').trigger('click');
     await buttons.find(btn => btn.text() === '*').trigger('click');
     await buttons.find(btn => btn.text() === '3').trigger('click');
     await buttons.find(btn => btn.text() === '=').trigger('click');
+    await flushPromises();
+
     expect(wrapper.vm.input).toBe('18');
   });
 
   it('calculates division correctly', async () => {
+    axios.post.mockResolvedValue({
+      data: { result: 4 }
+    });
+
     const buttons = wrapper.findAll('button');
     await buttons.find(btn => btn.text() === '8').trigger('click');
     await buttons.find(btn => btn.text() === '/').trigger('click');
     await buttons.find(btn => btn.text() === '2').trigger('click');
     await buttons.find(btn => btn.text() === '=').trigger('click');
+    await flushPromises();
+
     expect(wrapper.vm.input).toBe('4');
   });
 
@@ -140,19 +170,57 @@ describe('Calculator.vue', () => {
     expect(wrapper.vm.input).toBe('5');
   });
 
-  it('handles the calculation log correctly', async () => {
+  it('handles API errors correctly', async () => {
+    axios.post.mockRejectedValue(new Error('Network Error'));
+
     const buttons = wrapper.findAll('button');
     await buttons.find(btn => btn.text() === '7').trigger('click');
     await buttons.find(btn => btn.text() === '+').trigger('click');
     await buttons.find(btn => btn.text() === '8').trigger('click');
     await buttons.find(btn => btn.text() === '=').trigger('click');
 
-    expect(wrapper.vm.calculationLog.length).toBe(1);  // Ensure the log has 1 entry
-    expect(wrapper.vm.calculationLog[0]).toBe('7+8 = 15');  // Ensure the log entry is correct
+    await flushPromises();
 
-    // append the next result correctly
+    expect(wrapper.vm.alertMessage).toBe('Error: Network Error');
+  });
+
+  it('handles the calculation log correctly', async () => {
+    // Mock first calculation response
+    axios.post.mockResolvedValueOnce({
+      data: { result: 15 }
+    });
+    // Mock second calculation response
+    axios.post.mockResolvedValueOnce({
+      data: { result: 15 }
+    });
+
+    const buttons = wrapper.findAll('button');
+    await buttons.find(btn => btn.text() === '7').trigger('click');
+    await buttons.find(btn => btn.text() === '+').trigger('click');
+    await buttons.find(btn => btn.text() === '8').trigger('click');
     await buttons.find(btn => btn.text() === '=').trigger('click');
+
+    await flushPromises(); // Wait for first API call
+
+    expect(wrapper.vm.calculationLog.length).toBe(1);
+    expect(wrapper.vm.calculationLog[0]).toBe('7+8 = 15');
+
+    // Test second calculation
+    await buttons.find(btn => btn.text() === '=').trigger('click');
+    await flushPromises(); // Wait for second API call
+
     expect(wrapper.vm.calculationLog.length).toBe(2);
     expect(wrapper.vm.calculationLog[0]).toBe('15 = 15');
+
+    // Verify API calls
+    expect(axios.post).toHaveBeenCalledTimes(2);
+    expect(axios.post).toHaveBeenNthCalledWith(1,
+      'http://localhost:8080/api/calculator/calculate',
+      { expression: '7+8' }
+    );
+    expect(axios.post).toHaveBeenNthCalledWith(2,
+      'http://localhost:8080/api/calculator/calculate',
+      { expression: '15' }
+    );
   });
 });
