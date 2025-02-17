@@ -140,8 +140,9 @@ export default {
           expression: this.input
         };
 
+        // HTTP POST-request sendes med JSON i requestBody
         axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
-          .then(response => {
+          .then(response => { // Venter på svar fra backend
             this.calculationLog.unshift(`${this.input} = ${response.data.result}`);
             this.input = response.data.result.toString();
           })

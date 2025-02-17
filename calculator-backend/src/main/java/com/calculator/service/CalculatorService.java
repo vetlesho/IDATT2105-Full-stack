@@ -17,7 +17,7 @@ public class CalculatorService {
     logger.info("Calculating expression: {}", expression);
 
     if (expression.isEmpty()) {
-      throw new IllegalArgumentException("Expression cannot be empty");
+      expression = "0";
     }
 
     try {
