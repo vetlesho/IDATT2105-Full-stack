@@ -1,7 +1,7 @@
 package com.calculator.service;
 
 import com.calculator.model.CalculationRequest;
-import com.calculator.model.CalculatorException;
+import com.calculator.exception.CalculatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -69,7 +69,7 @@ public class CalculatorService {
     return tokens;
   }
 
-  private double evaluateExpression(List<String> tokens) throws IllegalArgumentException{
+  private double evaluateExpression(List<String> tokens) {
     // First handle multiplication and division
     for (int i = 1; i < tokens.size() - 1; i += 2) {
       String operator = tokens.get(i);

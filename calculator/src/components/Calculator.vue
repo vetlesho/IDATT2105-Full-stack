@@ -120,6 +120,8 @@ export default {
         expression: this.input
       };
 
+      // heller ha i egen service-mappe
+      // vurdere å sende hele utrykket som json, kanskje med et egen felt for resultat som er klar?
       axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
         .then(response => {
           this.calculationLog.unshift(`${this.input} = ${response.data.result}`);

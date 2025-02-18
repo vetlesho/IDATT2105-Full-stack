@@ -1,6 +1,6 @@
 package com.calculator.controller;
 
-import com.calculator.model.CalculatorException;
+import com.calculator.exception.CalculatorException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
