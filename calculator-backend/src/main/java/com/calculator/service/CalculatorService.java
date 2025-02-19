@@ -31,10 +31,10 @@ public class CalculatorService {
     // Split expression into numbers and operators while preserving negative signs
     List<String> tokens = tokenizeExpression(expression);
     logger.info("Tokenized expression: {}", tokens);
-    if (!tokens.isEmpty() && isOperator(tokens.get(tokens.size() - 1).charAt(0))) {
+    /*if (!tokens.isEmpty() && isOperator(tokens.get(tokens.size() - 1).charAt(0))) {
       logger.error("Expression ends with an operator");
       throw new CalculatorException("Expression cannot end with an operator");
-    }
+    }*/
 
     return evaluateExpression(tokens);
   }
@@ -47,8 +47,13 @@ public class CalculatorService {
       char c = expression.charAt(i);
 
       if (isOperator(c)) {
-        // Handle negative numbers
-        if (c == '-' && (i == 0 || isOperator(expression.charAt(i-1)))) {
+        // Handle negative numbers in three cases:
+        // 1. At the start of expression
+        // 2. After another operator
+        // 3. After an opening parenthesis (if we add support for them later)
+        boolean isNegativeNumber = c == '-' && (i == 0 || isOperator(expression.charAt(i - 1)) || expression.charAt(i - 1) == '/');
+
+        if (isNegativeNumber) {
           currentNumber.append(c);
         } else {
           if (!currentNumber.isEmpty()) {
@@ -64,6 +69,11 @@ public class CalculatorService {
 
     if (!currentNumber.isEmpty()) {
       tokens.add(currentNumber.toString());
+    }
+
+    // Validate the final token list
+    if (!tokens.isEmpty() && tokens.get(tokens.size() - 1).matches("[+\\-*/]")) {
+      throw new CalculatorException("Expression cannot end with an operator");
     }
 
     return tokens;

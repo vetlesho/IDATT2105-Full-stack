@@ -63,6 +63,40 @@ describe('Calculator', () => {
     cy.get('input').should('have.value', '11')
   })
 
+  it('handles sequential calculations with negative numbers', () => {
+    // Test 1: 6 * -2 = -12
+    cy.get('button').contains('6').click()
+    cy.get('button').contains('*').click()
+    cy.get('button').contains(/^-$/).click()
+    cy.get('button').contains('2').click()
+    cy.get('button').contains('=').click()
+    cy.wait('@calcRequest')
+    cy.get('input').should('have.value', '-12')
+
+    // Test 2: -12 / -3 = 4
+    cy.get('button').contains('/').click()
+    cy.get('button').contains(/^-$/).click()
+    cy.get('button').contains('3').click()
+    cy.get('button').contains('=').click()
+    cy.wait('@calcRequest')
+    cy.get('input').should('have.value', '4')
+
+    // Test 3: 4 * -5 = -20
+    cy.get('button').contains('*').click()
+    cy.get('button').contains(/^-$/).click()
+    cy.get('button').contains('5').click()
+    cy.get('button').contains('=').click()
+    cy.wait('@calcRequest')
+    cy.get('input').should('have.value', '-20')
+
+    // Check calculation log
+    cy.get('.outputLog').within(() => {
+      cy.contains('4*-5 = -20')
+      cy.contains('-12/-3 = 4')
+      cy.contains('6*-2 = -12')
+    })
+  })
+
   it('maintains calculation history', () => {
     // First calculation
     cy.get('button').contains('7').click()
