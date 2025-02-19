@@ -48,8 +48,8 @@
 </template>
 
 <script>
+import { calculatorService } from '@/services/CalculatorService';
 import AlertPopup from './AlertPopup.vue';
-import axios from 'axios';
 
 export default {
   components: {
@@ -115,22 +115,14 @@ export default {
         this.input = (-num).toString();
       }
     },
-    calculate() {
-      const requestBody = {
-        expression: this.input
-      };
-
-      // heller ha i egen service-mappe
-      // vurdere å sende hele utrykket som json, kanskje med et egen felt for resultat som er klar?
-      axios.post("http://localhost:8080/api/calculator/calculate", requestBody)
-        .then(response => {
-          this.calculationLog.unshift(`${this.input} = ${response.data.result}`);
-          this.input = response.data.result.toString();
-        })
-        .catch(error => {
-          const errorMessage = error.response?.data?.error || 'Network error. Please try again.';
-          this.$refs.alertPopup.showAlert("Error: " + errorMessage);
-        });
+    async calculate() {
+      try {
+        const result = await calculatorService.calculate(this.input);
+        this.calculationLog.unshift(`${this.input} = ${result.result}`);
+        this.input = result.result.toString();
+      } catch (error) {
+        this.$refs.alertPopup.showAlert("Error: " + error);
+      }
     },
   },
 };

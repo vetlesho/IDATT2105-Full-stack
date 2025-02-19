@@ -26,12 +26,11 @@
 
 <script>
 import AlertPopup from './AlertPopup.vue';
+import { feedbackService } from '@/services/FeedbackService';
 import { useUserStore } from '../stores/userStore';
 import useValidate from '@vuelidate/core';
 import { required, email, minLength, helpers } from '@vuelidate/validators';
 import { reactive, computed } from 'vue';
-import axios from 'axios';
-
 
 export default {
   components: {
@@ -71,28 +70,21 @@ export default {
   methods: {
     async submitForm() {
       this.v$.$validate();
-
-      if (this.v$.$error) {
-        return;
-      }
+      if (this.v$.$error) return;
 
       try {
-        const response = await axios.post('http://localhost:3000/feedback', {
+        const response = await feedbackService.submitFeedback({
           name: this.state.name,
           email: this.state.email,
           feedback: this.state.feedback,
         });
 
-        if (response.status === 201) {
-          const messageResponse = await axios.get('http://localhost:3000/messages');
-          this.$refs.alertPopup.showAlert(messageResponse.data.success);
-          this.userStore.setUserData(this.state.name, this.state.email);
-          this.state.feedback = '';
-          this.v$.$reset();
-        }
+        this.$refs.alertPopup.showAlert(response.success);
+        this.userStore.setUserData(this.state.name, this.state.email);
+        this.state.feedback = '';
+        this.v$.$reset();
       } catch (error) {
-        //const messageResponse = await axios.get('http://localhost:3000/messages');
-        //this.$refs.alertPopup.showAlert(messageResponse.data.error);
+        this.$refs.alertPopup.showAlert("Error submitting feedback");
         console.error('Form submission error:', error);
       }
     }
