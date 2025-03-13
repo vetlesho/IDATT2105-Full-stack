@@ -1,19 +1,74 @@
 package com.calculator.service;
 
+import com.calculator.model.Calculation;
 import com.calculator.model.CalculationRequest;
 import com.calculator.exception.CalculatorException;
+import com.calculator.model.User;
+import com.calculator.repository.CalculationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class CalculatorService {
+  private final CalculationRepository calculationRepository;
   private static final Logger logger = LoggerFactory.getLogger(CalculatorService.class);
 
-  public double calculate(CalculationRequest request) {
+  @Autowired
+  public CalculatorService(CalculationRepository calculationRepository) {
+    this.calculationRepository = calculationRepository;
+  }
+
+  public Page<Calculation> getCalculationHistory(User user, int page, int size) {
+    return calculationRepository.findByUserOrderByTimeStamp(
+            user,
+            PageRequest.of(page, size));
+  }
+
+  private void saveCalculation(String expression, double result, User user) {
+    Calculation calculation = new Calculation();
+    calculation.setExpression(expression);
+    calculation.setResult(String.valueOf(result));
+    calculation.setTimeStamp(LocalDateTime.now());
+    calculation.setUser(user);
+    calculationRepository.save(calculation);
+    logger.info("Saved calculation for user: {}", user.getUsername());
+  }
+
+  public double calculate(CalculationRequest request, User user) {
+    double result = calculateExpression(request.getExpression());
+    saveCalculation(request.getExpression(), result, user);
+    return result;
+  }
+
+  private double calculateExpression(String expression) {
+    String trimmedExpression = expression.trim();
+    logger.info("Calculating expression: {}", trimmedExpression);
+
+    if (trimmedExpression.isEmpty()) {
+      throw new CalculatorException("Expression is empty");
+    }
+
+    try {
+      return Double.parseDouble(trimmedExpression);
+    } catch (NumberFormatException e) {
+      List<String> tokens = tokenizeExpression(trimmedExpression);
+      logger.info("Tokenized expression: {}", tokens);
+      return evaluateExpression(tokens);
+    }
+  }
+
+
+  /*public double calculate(CalculationRequest request, User user) {
     String expression = request.getExpression().trim();
     logger.info("Calculating expression: {}", expression);
 
@@ -34,10 +89,10 @@ public class CalculatorService {
     /*if (!tokens.isEmpty() && isOperator(tokens.get(tokens.size() - 1).charAt(0))) {
       logger.error("Expression ends with an operator");
       throw new CalculatorException("Expression cannot end with an operator");
-    }*/
+    }
 
     return evaluateExpression(tokens);
-  }
+  }*/
 
   private List<String> tokenizeExpression(String expression) {
     List<String> tokens = new ArrayList<>();
