@@ -36,11 +36,13 @@
       </div>
     </div>
     <div class="output">
-      <h3>Logg:</h3>
+      <h3>Last 5 Calculations</h3>
       <div class="outputLog">
-        <p v-for="(entry, index) in calculationLog" :key="index">
-          {{ entry }}
-        </p>
+        <div v-for="(calc, index) in calculationHistory"
+             :key="index"
+             class="history-item">
+          {{ calc.expression }} = {{ calc.result }}
+        </div>
       </div>
     </div>
     <AlertPopup ref="alertPopup"/>

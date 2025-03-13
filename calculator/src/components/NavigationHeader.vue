@@ -1,15 +1,13 @@
 <template>
   <nav class="nav-header">
     <div class="nav-content">
-      <h1>Calculator</h1>
       <div class="nav-links">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link
-          :to="currentRoute === '/Calculator' ? '/Contactform' : '/Calculator'"
-          class="nav-link"
-        >
-          {{ currentRoute === '/Calculator' ? 'Contact Form' : 'Calculator' }}
-        </router-link>
+        <router-link to="/calculator">Calculator</router-link>
+        <router-link to="/contact">Contact Form</router-link>
+      </div>
+      <div class="user-info">
+        <span> Currently logged in as: {{ username }}</span>
+        <button @click="logout" class="logout-btn">Logout</button>
       </div>
     </div>
   </nav>
@@ -18,8 +16,14 @@
 <script>
 export default {
   computed: {
-    currentRoute() {
-      return this.$route.path;
+    username() {
+      return localStorage.getItem('username') || ''
+    }
+  },
+  methods: {
+    logout() {
+      localStorage.removeItem('username')
+      this.$router.push('/')
     }
   }
 }
@@ -32,39 +36,53 @@ export default {
   left: 0;
   right: 0;
   z-index: 1000;
-}
-
-.nav-content {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-header h1 {
-  color: white;
-  margin: 0;
+  padding: 10px;
   font-size: 1.5rem;
 }
 
-.nav-links {
+.nav-content {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.nav-links a {
+  margin-right: 20px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.nav-links a.router-link-active {
+  color: var(--color-heading);
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
   gap: 2rem;
 }
-
-.nav-link {
-  padding: 0.6rem 1.2rem;
+.logout-btn {
   background-color: #242424;
   color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  border: 1px solid transparent;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.nav-link:hover {
-  background-color: #404040;
+.logout-btn:hover {
+  background-color: #6a6a6a ;
+}
+
+.logout-btn:active {
+  background-color: #242424;
+  transform: translateY(1px);
 }
 </style>

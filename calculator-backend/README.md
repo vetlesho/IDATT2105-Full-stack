@@ -19,3 +19,23 @@ calculator-backend/ \
 # Swagger
 Use swagger to see endpoints directly, and have interactive API documentation: 
 http://localhost:8080/swagger-ui.html
+
+
+# SQL 
+Start mysql
+``` 
+brew services start mysql 
+```
+Login to mysql and create database and user
+
+```
+mysql -u root -p
+
+# In MySQL prompt:
+CREATE DATABASE calculator_db;
+CREATE USER 'calculator_user'@'localhost' IDENTIFIED BY 'Calculator123';
+GRANT ALL PRIVILEGES ON calculator_db.* TO 'calculator_user'@'localhost';
+FLUSH PRIVILEGES;
+exit;
+
+```

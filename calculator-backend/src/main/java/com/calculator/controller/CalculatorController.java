@@ -43,7 +43,7 @@ public class CalculatorController {
   public ResponseEntity<?> getHistory(
           @RequestHeader("username") String username,
           @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
+          @RequestParam(defaultValue = "5") int size) {
     User user = userService.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
