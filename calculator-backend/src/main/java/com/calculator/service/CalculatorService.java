@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +30,8 @@ public class CalculatorService {
   }
 
   public Page<Calculation> getCalculationHistory(User user, int page, int size) {
-    return calculationRepository.findByUserOrderByTimeStamp(
-            user,
-            PageRequest.of(page, size));
+    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timeStamp"));
+    return calculationRepository.findByUserOrderByTimeStamp(user, pageRequest);
   }
 
   private void saveCalculation(String expression, double result, User user) {

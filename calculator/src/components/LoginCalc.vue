@@ -45,7 +45,7 @@ export default {
           password: this.password
         })
         // Store username in localStorage for later use
-        localStorage.setItem('username', this.username)
+        localStorage.setItem('user', JSON.stringify({ username: this.username }));
         this.$router.push('/calculator') // Navigate to calculator page
       } catch (error) {
         alert('Login failed: ' + error.response?.data?.error || 'Unknown error')

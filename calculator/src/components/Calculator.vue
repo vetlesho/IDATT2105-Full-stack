@@ -36,14 +36,7 @@
       </div>
     </div>
     <div class="output">
-      <h3>Last 5 Calculations</h3>
-      <div class="outputLog">
-        <div v-for="(calc, index) in calculationHistory"
-             :key="index"
-             class="history-item">
-          {{ calc.expression }} = {{ calc.result }}
-        </div>
-      </div>
+      <HistoryLog ref="historyLog"/>
     </div>
     <AlertPopup ref="alertPopup"/>
   </div>
@@ -52,10 +45,12 @@
 <script>
 import { calculatorService } from '@/services/CalculatorService';
 import AlertPopup from './AlertPopup.vue';
+import HistoryLog from './HistoryLog.vue';
 
 export default {
   components: {
     AlertPopup,
+    HistoryLog
   },
   data() {
     return {
@@ -120,8 +115,9 @@ export default {
     async calculate() {
       try {
         const result = await calculatorService.calculate(this.input);
-        this.calculationLog.unshift(`${this.input} = ${result.result}`);
         this.input = result.result.toString();
+        // Emit an event to refresh history
+        await this.$refs.historyLog.loadHistory();
       } catch (error) {
         this.$refs.alertPopup.showAlert("Error: " + error);
       }
@@ -200,28 +196,5 @@ button:hover {
   max-width: 380px;
   border: 2px solid #333;
   border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.outputLog {
-  overflow-y: auto;
-  max-height: 125px;
-  padding-right: 10px;
-  scrollbar-width: thin;
-  scrollbar-color: #333 #4d4d4d;
-}
-
-.output h3 {
-  text-align: left;
-  margin-top: 0px;
-  color: white;
-}
-
-.outputLog p {
-  margin: 2px;
-  margin-top: 0px;
-  text-align: left;
-  color: white;
 }
 </style>

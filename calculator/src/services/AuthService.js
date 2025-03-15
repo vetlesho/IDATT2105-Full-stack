@@ -3,11 +3,11 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8080/api/user';
 
 export const authService = {
-  async login(username, password) {
+  async handleLogin() {
     try {
       const response = await axios.post(`${API_URL}/login`, {
-        username,
-        password
+        username: this.username,
+        password: this.password
       });
       if (response.data) {
         // Store only necessary user data
