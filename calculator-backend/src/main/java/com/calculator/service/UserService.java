@@ -2,6 +2,7 @@ package com.calculator.service;
 
 import com.calculator.exception.AuthenticationException;
 import com.calculator.exception.UserAlreadyLoggedInException;
+import com.calculator.exception.UserNotFoundException;
 import com.calculator.model.User;
 import com.calculator.repository.UserRepository;
 import org.slf4j.Logger;
@@ -9,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -52,23 +51,23 @@ public class UserService {
   public void logout(String username) {
     try {
       logger.info("Logout attempt for user '{}'", username);
-      if (!sessionService.isUserLoggedIn(username)) {
+      if (sessionService.isUserLoggedIn(username)) {
         logger.warn("Cannot logout user '{}' - not logged in", username);
-        throw new RuntimeException("User not logged in");
+        throw new UserNotFoundException("User not logged in");
       }
 
       sessionService.logout(username);
       logger.info("Logout successful for user '{}'", username);
     } catch (Exception e) {
       logger.error("Logout failed for user '{}': {}", username, e.getMessage());
-      throw new RuntimeException("Logout failed");
+      throw new AuthenticationException("Logout failed");
     }
 
   }
 
   public User register(String username, String password) {
     if (userRepository.findByUsername(username).isPresent()) {
-      throw new RuntimeException("Username already exists");
+      throw new AuthenticationException("Username already exists");
     }
 
     User user = new User();
@@ -77,7 +76,11 @@ public class UserService {
     return userRepository.save(user);
   }
 
-  public Optional<User> findByUsername(String username) {
-    return userRepository.findByUsername(username);
+  public User getUserByUsername(String username) {
+    return userRepository.findByUsername(username)
+            .orElseThrow(() -> new AuthenticationException("User not found: " + username));
+
   }
+
+
 }

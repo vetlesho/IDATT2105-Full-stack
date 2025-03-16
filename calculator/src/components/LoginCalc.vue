@@ -21,7 +21,9 @@
             class="input-field"
           />
         </div>
-        <button type="submit" class="login-button">Login</button>
+        <button type="submit" class="login-button" :disabled="isLoading">
+          {{ isLoading ? 'Logging in...' : 'Login' }}
+        </button>
       </form>
     </div>
     <AlertPopup ref="alertPopup"/>
@@ -29,7 +31,6 @@
 </template>
 
 <script>
-//import axios from 'axios'
 import { authService } from '@/services/AuthService';
 import AlertPopup from './AlertPopup.vue';
 
@@ -52,10 +53,7 @@ export default {
       try {
         const result = await authService.login(this.username, this.password);
 
-        console.log('Login response:', result); // Debug log
-
         if (result.success) {
-          console.log('Login successful, navigating to calculator');
           this.$router.push('/calculator');
         } else {
           this.$refs.alertPopup.showAlert(result.error);

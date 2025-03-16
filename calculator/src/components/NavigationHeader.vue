@@ -31,16 +31,20 @@ export default {
   },
   methods: {
     async handleLogout() {
-      const result = await authService.logout();
+      try {
+        const result = await authService.logout();
 
-      if (result.success) {
-        this.$router.push('/');
-      } else {
-        this.$refs.alertPopup.showAlert(result.error);
-        // Still redirect if error is about user not found
-        if (result.error.includes('not found')) {
+        if (result.success) {
+          this.$router.push('/');
+        } else {
+          this.$refs.alertPopup.showAlert(result.error);
+          // Force navigation to login even if logout fails
           this.$router.push('/');
         }
+      } catch (error) {
+        console.error('Logout error:', error);
+        this.$refs.alertPopup.showAlert('Unexpected error during logout');
+        this.$router.push('/');
       }
     }
   }

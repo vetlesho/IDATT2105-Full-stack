@@ -1,5 +1,6 @@
 package com.calculator.service;
 
+import com.calculator.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,11 @@ public class SessionService {
       logger.info("User '{}' is is the session", username);
       return true;
     }
+    if (loggedInUsers.containsKey(username)) {
+      logger.info("User '{}' is already logged in - allowing reconnection", username);
+      return true; // Allow reconnection for same user
+    }
+
     String loggedInUser = loggedInUsers.keySet().iterator().next();
     logger.warn("Login attempt for user '{}' failed - '{}' is already logged in",
             username, loggedInUser);
@@ -23,12 +29,13 @@ public class SessionService {
   }
 
   public void logout(String username) {
-    Boolean removed = loggedInUsers.remove(username);
-    if (removed != null) {
-      logger.info("User '{}' removed from session", username);
-    } else {
-      logger.warn("Logout attempt for user '{}' failed - user was not in session", username);
+    if (!isUserLoggedIn(username)) {
+      logger.warn("Cannot logout user '{}' - not logged in", username);
+      throw new UserNotFoundException("User not found in active sessions");
     }
+
+    loggedInUsers.remove(username);
+    logger.info("User '{}' has been logged out", username);
   }
 
   public boolean isUserLoggedIn(String username) {

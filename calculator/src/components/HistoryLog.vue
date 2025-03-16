@@ -1,6 +1,16 @@
 <template>
   <div class="calculation-history">
-    <h3>Recent Calculations</h3>
+    <div class="history-header">
+      <h3>Recent Calculations</h3>
+      <div class="dropdown">
+        <select v-model="selectedCount" @change="loadHistory" class="count-selector">
+          <option value="5">Last 5</option>
+          <option value="10">Last 10</option>
+          <option value="15">Last 15</option>
+          <option value="20">Last 20</option>
+        </select>
+      </div>
+    </div>
     <ul class="history-list" v-if="calculations.length > 0">
       <li v-for="calc in calculations" :key="calc.id" class="history-item">
         {{ calc.expression }} = {{ calc.result }}
@@ -18,7 +28,8 @@ import { calculatorService } from '../services/CalculatorService'
 export default {
   data() {
     return {
-      calculations: []
+      calculations: [],
+      selectedCount: 5
     }
   },
   async mounted() {
@@ -27,7 +38,7 @@ export default {
   methods: {
     async loadHistory() {
       try {
-        const response = await calculatorService.getHistory()
+        const response = await calculatorService.getHistory(0, this.selectedCount)
         // The backend returns paginated content
         this.calculations = response.content || []
         console.log('Loaded calculations:', this.calculations)
@@ -47,25 +58,51 @@ export default {
   color: white;
 }
 
-.history-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  overflow-y: auto;
-  max-height: 100px;
-}
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-.history-item {
-  border-bottom: 1px solid #555;
-}
-
-.timestamp {
-  color: #aaa;
-  margin-left: 8px;
 }
 
 h3 {
   margin: 0 0 1px 0;
   font-size: 1rem;
+}
+
+.dropdown {
+  margin-bottom: 10px;
+}
+
+.count-selector {
+  background-color: #272121;
+  color: white;
+  border: 1px solid #555;
+  padding: 5px;
+  border-radius: 4px;
+  width: 100px;
+  font-size: 0.8rem;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 150px;
+}
+
+.history-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #555;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.timestamp {
+  color: #aaa;
+  margin-left: 8px;
 }
 </style>

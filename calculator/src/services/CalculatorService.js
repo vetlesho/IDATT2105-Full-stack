@@ -18,7 +18,7 @@ export const calculatorService = {
 
   },
 
-  async getHistory(page = 0, size = 10) {
+  async getHistory(page = 0, size) {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user.username) {
       throw new Error('No user logged in');

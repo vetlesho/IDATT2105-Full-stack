@@ -27,7 +27,8 @@ public class CalculatorExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
     Map<String, String> response = new HashMap<>();
-    response.put("error", "Calculation error: " + e.getMessage());
+    response.put("error", "Server error: " + e.getMessage());
+    response.put("message", "Server error: " + e.getMessage());
     return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(response);
@@ -37,6 +38,7 @@ public class CalculatorExceptionHandler {
   public ResponseEntity<Map<String, String>> handleUserAlreadyLoggedInException(UserAlreadyLoggedInException e) {
     Map<String, String> response = new HashMap<>();
     response.put("error", e.getMessage());
+    response.put("message", e.getMessage());
     return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(response);
@@ -46,6 +48,7 @@ public class CalculatorExceptionHandler {
   public ResponseEntity<Map<String, String>> handleAuthenticationException(AuthenticationException e) {
     Map<String, String> response = new HashMap<>();
     response.put("error", e.getMessage());
+    response.put("message", e.getMessage());
     return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body(response);

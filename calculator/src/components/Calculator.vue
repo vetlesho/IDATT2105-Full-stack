@@ -197,7 +197,7 @@ button:hover {
   background-color: #4d4d4d;
   padding: 10px;
   min-height: 125px;
-  max-height: 125px;
+  max-height: 100%;
   max-width: 380px;
   border: 2px solid #333;
   border-radius: 10px;

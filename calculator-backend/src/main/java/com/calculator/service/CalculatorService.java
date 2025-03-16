@@ -22,11 +22,13 @@ import java.util.List;
 @Transactional
 public class CalculatorService {
   private final CalculationRepository calculationRepository;
+  private final UserService userService;
   private static final Logger logger = LoggerFactory.getLogger(CalculatorService.class);
 
   @Autowired
-  public CalculatorService(CalculationRepository calculationRepository) {
+  public CalculatorService(CalculationRepository calculationRepository,  UserService userService) {
     this.calculationRepository = calculationRepository;
+    this.userService = userService;
   }
 
   public Page<Calculation> getCalculationHistory(User user, int page, int size) {
@@ -42,6 +44,20 @@ public class CalculatorService {
     calculation.setUser(user);
     calculationRepository.save(calculation);
     logger.info("Saved calculation for user: {}", user.getUsername());
+  }
+
+  public double calculateForUser(CalculationRequest request, String username) {
+    User user = getUserOrThrow(username);
+    return calculate(request, user);
+  }
+
+  public Page<Calculation> getCalculationHistoryForUser(String username, int page, int size) {
+    User user = getUserOrThrow(username);
+    return getCalculationHistory(user, page, size);
+  }
+
+  private User getUserOrThrow(String username) {
+    return userService.getUserByUsername(username);
   }
 
   public double calculate(CalculationRequest request, User user) {

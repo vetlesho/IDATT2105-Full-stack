@@ -6,8 +6,15 @@ export const authService = {
   async login(username, password) {
     try {
       const response = await axios.post(`${API_URL}/login`, { username, password });
-      localStorage.setItem('username', username);
-      localStorage.setItem('user', JSON.stringify({ username, id: response.data.id }));
+
+      if (response.data && response.status === 200) {
+        localStorage.setItem('username', username);
+        localStorage.setItem('user', JSON.stringify({
+          username: username,
+          id: response.data.id
+        }));
+      }
+
       return { success: true, data: response.data };
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Login failed. Please try again.';
@@ -16,18 +23,33 @@ export const authService = {
   },
 
   async logout() {
-    const user = this.getCurrentUser();
-    if (!user) {
-      return { success: true };
-    }
-
     try {
-      await axios.post(`${API_URL}/logout`, null, { headers: { username: user.username } });
+      // Get the current user from localStorage
+      const username = localStorage.getItem('username');
+      if (!username) {
+        return { success: true }; // No user to log out
+      }
+
+      await axios.post(`${API_URL}/logout`, {}, {
+        headers: {
+          username: username
+        }
+      });
+
+      // Clear storage regardless of backend response
       this.clearUserData();
+
       return { success: true };
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Failed to logout';
-      return { success: false, error: errorMessage };
+      console.error('Logout error:', error);
+
+      // Even if logout fails, clear local storage
+      this.clearUserData();
+
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Logout failed'
+      };
     }
   },
 
