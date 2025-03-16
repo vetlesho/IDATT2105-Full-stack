@@ -47,17 +47,13 @@ public class CalculatorService {
   }
 
   public double calculateForUser(CalculationRequest request, String username) {
-    User user = getUserOrThrow(username);
+    User user = userService.getUserByUsername(username);
     return calculate(request, user);
   }
 
   public Page<Calculation> getCalculationHistoryForUser(String username, int page, int size) {
-    User user = getUserOrThrow(username);
+    User user = userService.getUserByUsername(username);
     return getCalculationHistory(user, page, size);
-  }
-
-  private User getUserOrThrow(String username) {
-    return userService.getUserByUsername(username);
   }
 
   public double calculate(CalculationRequest request, User user) {

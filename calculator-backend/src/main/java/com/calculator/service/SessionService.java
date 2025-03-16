@@ -11,7 +11,7 @@ public class SessionService {
   private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
   private final ConcurrentHashMap<String, Boolean> loggedInUsers = new ConcurrentHashMap<>();
 
-  public boolean login(String username) {
+  public boolean loginToSession(String username) {
     if (loggedInUsers.isEmpty()) {
       loggedInUsers.put(username, true);
       logger.info("User '{}' is is the session", username);
@@ -28,7 +28,7 @@ public class SessionService {
     return false;
   }
 
-  public void logout(String username) {
+  public void logoutFromSession(String username) {
     if (!isUserLoggedIn(username)) {
       logger.warn("Cannot logout user '{}' - not logged in", username);
       throw new UserNotFoundException("User not found in active sessions");

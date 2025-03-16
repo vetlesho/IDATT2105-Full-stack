@@ -27,42 +27,33 @@ public class UserService {
   public User login(String username, String password) {
     logger.debug("Login attempt for user: '{}'", username);
 
-    User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> {
-              logger.error("Authentication failed for user '{}'", username);
-              return new AuthenticationException("Invalid username");
-            });
-
-    if (!user.getPassword().equals(password)) {
-      logger.error("Authentication failed for user '{}' - invalid password", username);
-      throw new AuthenticationException("Invalid password");
-    }
-
-    if (!sessionService.login(username)) {
-      logger.warn("Login blocked - another user is already in session");
-      throw new UserAlreadyLoggedInException("Another user is currently logged in");
-    }
-
-    logger.info("Login successful for user '{}'", username);
-    return user;
-  }
-
-
-  public void logout(String username) {
     try {
-      logger.info("Logout attempt for user '{}'", username);
-      if (sessionService.isUserLoggedIn(username)) {
-        logger.warn("Cannot logout user '{}' - not logged in", username);
-        throw new UserNotFoundException("User not logged in");
+      User user = getUserByUsername(username);
+
+      if (!user.getPassword().equals(password)) {
+        throw new AuthenticationException("Invalid password");
+      }
+      if (!sessionService.loginToSession(username)) {
+        throw new UserAlreadyLoggedInException("Another user is currently logged in");
       }
 
-      sessionService.logout(username);
-      logger.info("Logout successful for user '{}'", username);
-    } catch (Exception e) {
-      logger.error("Logout failed for user '{}': {}", username, e.getMessage());
-      throw new AuthenticationException("Logout failed");
+      logger.info("Login successful for user '{}'", username);
+      return user;
+    } catch (AuthenticationException e) {
+      logger.error("Authentication failed for user '{}'", username);
+      throw e;
     }
+  }
 
+  public void logout(String username) {
+    logger.info("Logout attempt for user '{}'", username);
+    try {
+      sessionService.logoutFromSession(username);
+      logger.info("Logout successful for user '{}'", username);
+    } catch (UserNotFoundException e) {
+      logger.warn("Logout failed: {}", e.getMessage());
+      throw e; // Re-throw the exception for controller to handle
+    }
   }
 
   public User register(String username, String password) {
@@ -79,8 +70,5 @@ public class UserService {
   public User getUserByUsername(String username) {
     return userRepository.findByUsername(username)
             .orElseThrow(() -> new AuthenticationException("User not found: " + username));
-
   }
-
-
 }

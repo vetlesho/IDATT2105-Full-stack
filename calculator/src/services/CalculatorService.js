@@ -10,16 +10,16 @@ export const calculatorService = {
         { expression },
         { headers: { username } }
       )
+
       return response.data
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "calc fail";
-      return { success: false, error: errorMessage };
+      return this.handleError(error, 'Calculation failed');
     }
 
   },
 
   async getHistory(page = 0, size) {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = this.getCurrentUser();
     if (!user || !user.username) {
       throw new Error('No user logged in');
     }
@@ -31,13 +31,35 @@ export const calculatorService = {
         },
         params: {
           page,
-          size
+          size,
+          sort: 'timeStamp,desc'
         }
       });
       return response.data;
     } catch (error) {
-      console.error('History fetch error:', error);
-      throw error.response?.data?.error || 'Failed to load history';
+      return this.handleError(error, 'Failed to load history');
     }
+  },
+
+  getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+
+    try {
+      return JSON.parse(userStr);
+    } catch (e) {
+      console.error('Failed to parse user data:', e);
+      localStorage.removeItem('user');
+      return null;
+    }
+  },
+
+  handleError(error, defaultMessage) {
+    const errorMessage =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      defaultMessage;
+
+    return { success: false, error: errorMessage };
   }
 };

@@ -23,7 +23,6 @@ public class CalculatorController {
     this.calculatorService = calculatorService;
   }
 
-  // try catch som er i service klassen burde heller være i controlleren
   @PostMapping("/calculate") // Lytter for POST-requests på localhost:xxxx/api/calculator/calculate
   public ResponseEntity<CalculationResult> calculate(
           @RequestBody CalculationRequest request,
