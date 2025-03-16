@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CalculationRepository extends JpaRepository<Calculation, Long> {
-  Page<Calculation> findByUserOrderByTimeStamp(User user, Pageable pageable);
+  Page<Calculation> findByUserOrderByTimeStampDesc(User user, Pageable pageable);
 }

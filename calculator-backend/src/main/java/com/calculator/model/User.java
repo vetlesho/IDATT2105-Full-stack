@@ -18,7 +18,7 @@ public class User {
   @Column(nullable = false)
   private String password;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JsonManagedReference
   private List<Calculation> calculations = new ArrayList<>();
 

@@ -52,11 +52,10 @@ export default {
   padding: 0;
   margin: 0;
   overflow-y: auto;
-  max-height: 80px;
+  max-height: 100px;
 }
 
 .history-item {
-  padding: 4px 0;
   border-bottom: 1px solid #555;
 }
 
@@ -66,7 +65,7 @@ export default {
 }
 
 h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
+  margin: 0 0 1px 0;
+  font-size: 1rem;
 }
 </style>

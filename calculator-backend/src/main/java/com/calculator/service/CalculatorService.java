@@ -31,7 +31,7 @@ public class CalculatorService {
 
   public Page<Calculation> getCalculationHistory(User user, int page, int size) {
     PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timeStamp"));
-    return calculationRepository.findByUserOrderByTimeStamp(user, pageRequest);
+    return calculationRepository.findByUserOrderByTimeStampDesc(user, pageRequest);
   }
 
   private void saveCalculation(String expression, double result, User user) {

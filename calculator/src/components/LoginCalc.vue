@@ -28,7 +28,8 @@
 </template>
 
 <script>
-import axios from 'axios'
+//import axios from 'axios'
+import { authService } from '@/services/AuthService';
 
 export default {
   data() {
@@ -37,18 +38,17 @@ export default {
       password: ''
     }
   },
+  created() {
+    // Ensure no user is logged in when visiting login page
+    authService.clearUserData();
+  },
   methods: {
     async handleLogin() {
       try {
-        await axios.post('http://localhost:8080/api/user/login', {
-          username: this.username,
-          password: this.password
-        })
-        // Store username in localStorage for later use
-        localStorage.setItem('user', JSON.stringify({ username: this.username }));
-        this.$router.push('/calculator') // Navigate to calculator page
+        await authService.login(this.username, this.password);
+        this.$router.push('/calculator');
       } catch (error) {
-        alert('Login failed: ' + error.response?.data?.error || 'Unknown error')
+        alert(error.message);
       }
     }
   }

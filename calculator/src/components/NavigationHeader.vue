@@ -14,16 +14,24 @@
 </template>
 
 <script>
+
+import { authService } from '@/services/AuthService'
+
 export default {
   computed: {
     username() {
-      return localStorage.getItem('username') || ''
+      const user = authService.getCurrentUser()
+      return user ? user.username : ''
     }
   },
   methods: {
-    logout() {
-      localStorage.removeItem('username')
-      this.$router.push('/')
+    async logout() {
+      try {
+        await authService.logout()
+        this.$router.push('/')
+      } catch (error) {
+        alert(error)
+      }
     }
   }
 }

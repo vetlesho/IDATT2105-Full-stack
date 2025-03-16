@@ -26,4 +26,10 @@ public class UserController {
   public ResponseEntity<?> login(@RequestBody User user) {
     return ResponseEntity.ok(userService.login(user.getUsername(), user.getPassword()));
   }
+
+  @PostMapping("/logout")
+  public ResponseEntity<?> logout(@RequestHeader("username") String username) {
+    userService.logout(username);
+    return ResponseEntity.ok().build();
+  }
 }
