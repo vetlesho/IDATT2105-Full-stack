@@ -1,5 +1,7 @@
 package com.calculator.service;
 
+import com.calculator.exception.AuthenticationException;
+import com.calculator.exception.UserAlreadyLoggedInException;
 import com.calculator.model.User;
 import com.calculator.repository.UserRepository;
 import org.slf4j.Logger;
@@ -24,21 +26,28 @@ public class UserService {
   }
 
   public User login(String username, String password) {
-    logger.info("Login attempt for user: '{}'", username);
+    logger.debug("Login attempt for user: '{}'", username);
+
     User user = userRepository.findByUsername(username)
-            .filter(u -> u.getPassword().equals(password))
             .orElseThrow(() -> {
-              logger.warn("Login failed for user '{}'", username);
-              return new RuntimeException("Invalid username or password");
+              logger.error("Authentication failed for user '{}'", username);
+              return new AuthenticationException("Invalid username");
             });
 
+    if (!user.getPassword().equals(password)) {
+      logger.error("Authentication failed for user '{}' - invalid password", username);
+      throw new AuthenticationException("Invalid password");
+    }
+
     if (!sessionService.login(username)) {
-      throw new RuntimeException("Another user is already logged in");
+      logger.warn("Login blocked - another user is already in session");
+      throw new UserAlreadyLoggedInException("Another user is currently logged in");
     }
 
     logger.info("Login successful for user '{}'", username);
     return user;
   }
+
 
   public void logout(String username) {
     try {

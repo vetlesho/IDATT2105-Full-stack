@@ -24,14 +24,19 @@
         <button type="submit" class="login-button">Login</button>
       </form>
     </div>
+    <AlertPopup ref="alertPopup"/>
   </div>
 </template>
 
 <script>
 //import axios from 'axios'
 import { authService } from '@/services/AuthService';
+import AlertPopup from './AlertPopup.vue';
 
 export default {
+  components: {
+    AlertPopup
+  },
   data() {
     return {
       username: '',
@@ -45,10 +50,19 @@ export default {
   methods: {
     async handleLogin() {
       try {
-        await authService.login(this.username, this.password);
-        this.$router.push('/calculator');
+        const result = await authService.login(this.username, this.password);
+
+        console.log('Login response:', result); // Debug log
+
+        if (result.success) {
+          console.log('Login successful, navigating to calculator');
+          this.$router.push('/calculator');
+        } else {
+          this.$refs.alertPopup.showAlert(result.error);
+        }
       } catch (error) {
-        alert(error.message);
+        console.error('Login error:', error);
+        this.$refs.alertPopup.showAlert('Unexpected error during login');
       }
     }
   }
@@ -98,13 +112,13 @@ label {
 
 .input-field:focus {
   outline: none;
-  border-color: #646cff;
+  border-color: #b45511;
 }
 
 .login-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #646cff;
+  background-color: #b45511;
   color: white;
   border: none;
   border-radius: 4px;
@@ -114,10 +128,10 @@ label {
 }
 
 .login-button:hover {
-  background-color: #747bff;
+  background-color: #ff7d20;
 }
 
 .login-button:active {
-  background-color: #535bf2;
+  background-color: #b45511;
 }
 </style>

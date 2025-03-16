@@ -115,6 +115,11 @@ export default {
     async calculate() {
       try {
         const result = await calculatorService.calculate(this.input);
+        if (result.error) {
+          this.$refs.alertPopup.showAlert(result.error);
+          return;
+        }
+
         this.input = result.result.toString();
         // Emit an event to refresh history
         await this.$refs.historyLog.loadHistory();

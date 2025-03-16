@@ -5,53 +5,29 @@ const API_URL = 'http://localhost:8080/api/user';
 export const authService = {
   async login(username, password) {
     try {
-      const response = await axios.post(`${API_URL}/login`, {
-        username,
-        password
-      });
-
-      if (response.data) {
-        // Store both user data and username for router guard
-        localStorage.setItem('username', username);
-        localStorage.setItem('user', JSON.stringify({
-          username: username,
-          id: response.data.id
-        }));
-        return response.data;
-      }
+      const response = await axios.post(`${API_URL}/login`, { username, password });
+      localStorage.setItem('username', username);
+      localStorage.setItem('user', JSON.stringify({ username, id: response.data.id }));
+      return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message;
-      if (errorMessage?.includes('already logged in')) {
-        throw new Error('Another user is currently logged in. Please try again later.');
-      }
-      if (error.response?.status === 401) {
-        throw new Error('Invalid username or password');
-      }
-      throw new Error(errorMessage || 'Login failed. Please try again.');
+      const errorMessage = error.response?.data?.error || 'Login failed. Please try again.';
+      return { success: false, error: errorMessage };
     }
   },
 
   async logout() {
     const user = this.getCurrentUser();
     if (!user) {
-      console.log('No user found to logout');
-      return;
+      return { success: true };
     }
 
     try {
-      // Make sure to wait for the backend logout to complete
-      await axios.post(`${API_URL}/logout`, null, {
-        headers: {
-          username: user.username,
-        }
-      });
-      console.log('Logout successful');
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw new Error(error.response?.data?.message || 'Failed to logout');
-    } finally {
-      // Only clear local data after backend confirms logout or if there's an error
+      await axios.post(`${API_URL}/logout`, null, { headers: { username: user.username } });
       this.clearUserData();
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Failed to logout';
+      return { success: false, error: errorMessage };
     }
   },
 

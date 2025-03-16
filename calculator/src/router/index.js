@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Calculator from '../components/Calculator.vue';
 import ContactForm from '../components/ContactForm.vue';
 import LoginCalc from '../components/LoginCalc.vue';
+import { authService } from '@/services/AuthService';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -27,8 +28,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const username = localStorage.getItem('username')
-  if (to.meta.requiresAuth && !username) {
+  const currentUser = authService.getCurrentUser();
+
+  if (to.meta.requiresAuth && !currentUser) {
     next('/')
   } else {
     next()

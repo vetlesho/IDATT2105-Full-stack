@@ -7,17 +7,22 @@
       </div>
       <div class="user-info">
         <span> Currently logged in as: {{ username }}</span>
-        <button @click="logout" class="logout-btn">Logout</button>
+        <button @click="handleLogout" class="logout-btn">Logout</button>
       </div>
     </div>
+    <AlertPopup ref="alertPopup"/>
   </nav>
 </template>
 
 <script>
 
 import { authService } from '@/services/AuthService'
+import AlertPopup from './AlertPopup.vue'
 
 export default {
+  components: {
+    AlertPopup
+  },
   computed: {
     username() {
       const user = authService.getCurrentUser()
@@ -25,12 +30,17 @@ export default {
     }
   },
   methods: {
-    async logout() {
-      try {
-        await authService.logout()
-        this.$router.push('/')
-      } catch (error) {
-        alert(error)
+    async handleLogout() {
+      const result = await authService.logout();
+
+      if (result.success) {
+        this.$router.push('/');
+      } else {
+        this.$refs.alertPopup.showAlert(result.error);
+        // Still redirect if error is about user not found
+        if (result.error.includes('not found')) {
+          this.$router.push('/');
+        }
       }
     }
   }
