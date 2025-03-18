@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/user';
+const API_URL = 'http://localhost:8080/api/auth';
 
 export const authService = {
   async login(username, password) {
@@ -8,9 +8,19 @@ export const authService = {
       const response = await axios.post(`${API_URL}/login`, { username, password });
 
       if (response?.data && response.status === 200) {
-        this.saveUserData(username, response.data.id);
-      }
+        const token = response.data.token;
+        if (token) {
+          sessionStorage.setItem('jwtToken', token);
 
+          const userInfo = this.parseJwt(token);
+
+          this.saveUserData(username, userInfo.sub || response.data.id);
+        } else {
+          console.warn('No token received from server');
+        }
+
+        //this.saveUserData(username, response.data.id);
+      }
       return { success: true, data: response.data };
     } catch (error) {
       return this.handleAuthError(error, 'Login failed. Please try again.');
@@ -19,13 +29,15 @@ export const authService = {
 
   async logout() {
     try {
-      const username = localStorage.getItem('username');
-      if (!username) {
+      const token = this.getToken();
+      if (!token) {
         return { success: true }; // No user to log out
       }
 
       await axios.post(`${API_URL}/logout`, {}, {
-        headers: {username: username }
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       return { success: true };
@@ -50,8 +62,37 @@ export const authService = {
   },
 
   clearUserData() {
+    sessionStorage.removeItem('jwtToken');
     localStorage.removeItem('user');
     localStorage.removeItem('username');
+  },
+
+  getToken() {
+    return sessionStorage.getItem('jwtToken');
+  },
+
+  isTokenExpired() {
+    const token = this.getToken();
+    if (!token) return true;
+
+    const tokenData = this.parseJwt(token);
+    const expiration = tokenData.exp * 1000; // convert to milliseconds
+    return expiration <= Date.now();
+  },
+
+  parseJwt(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = window.atob(base64);
+      return JSON.parse(window.atob(jsonPayload));
+    } catch (e) {
+      return {e};
+    }
+  },
+
+  isLoggedIn() {
+    return this.getToken() && !this.isTokenExpired();
   },
 
   handleAuthError(error, defaultMessage) {

@@ -8,6 +8,7 @@ import com.calculator.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +18,26 @@ public class UserService {
   private static final Logger logger = LoggerFactory.getLogger(UserService.class);
   private final UserRepository userRepository;
   private final SessionService sessionService;
+  private final PasswordEncoder passwordEncoder;
 
   @Autowired
-  public UserService(UserRepository userRepository, SessionService sessionService) {
+  public UserService(UserRepository userRepository, SessionService sessionService,  PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.sessionService = sessionService;
+    this.passwordEncoder = passwordEncoder;
   }
+
+  public User register(String username, String password) {
+    if (userRepository.findByUsername(username).isPresent()) {
+      throw new AuthenticationException("Username already exists");
+    }
+
+    User user = new User();
+    user.setUsername(username);
+    user.setPassword(passwordEncoder.encode(password));
+    return userRepository.save(user);
+  }
+
 
   public User login(String username, String password) {
     logger.debug("Login attempt for user: '{}'", username);
@@ -30,7 +45,7 @@ public class UserService {
     try {
       User user = getUserByUsername(username);
 
-      if (!user.getPassword().equals(password)) {
+      if (!passwordEncoder.matches(password, user.getPassword())) {
         throw new AuthenticationException("Invalid password");
       }
       if (!sessionService.loginToSession(username)) {
@@ -40,7 +55,7 @@ public class UserService {
       logger.info("Login successful for user '{}'", username);
       return user;
     } catch (AuthenticationException e) {
-      logger.error("Authentication failed for user '{}'", username);
+      logger.error("Authentication failed for user '{}'", username, e);
       throw e;
     }
   }
@@ -54,17 +69,6 @@ public class UserService {
       logger.warn("Logout failed: {}", e.getMessage());
       throw e; // Re-throw the exception for controller to handle
     }
-  }
-
-  public User register(String username, String password) {
-    if (userRepository.findByUsername(username).isPresent()) {
-      throw new AuthenticationException("Username already exists");
-    }
-
-    User user = new User();
-    user.setUsername(username);
-    user.setPassword(password);
-    return userRepository.save(user);
   }
 
   public User getUserByUsername(String username) {

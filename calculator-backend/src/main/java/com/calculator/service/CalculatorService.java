@@ -53,6 +53,7 @@ public class CalculatorService {
 
   public Page<Calculation> getCalculationHistoryForUser(String username, int page, int size) {
     User user = userService.getUserByUsername(username);
+    logger.info("Fetching history for user: {}, size: {}", user.getUsername(), size);
     return getCalculationHistory(user, page, size);
   }
 

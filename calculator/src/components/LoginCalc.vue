@@ -21,9 +21,7 @@
             class="input-field"
           />
         </div>
-        <button type="submit" class="login-button" :disabled="isLoading">
-          {{ isLoading ? 'Logging in...' : 'Login' }}
-        </button>
+        <button type="submit" class="login-button"> Login </button>
       </form>
     </div>
     <AlertPopup ref="alertPopup"/>

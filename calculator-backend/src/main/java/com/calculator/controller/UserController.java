@@ -17,19 +17,8 @@ public class UserController {
     this.userService = userService;
   }
 
-  @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody User user) {
-    return ResponseEntity.ok(userService.register(user.getUsername(), user.getPassword()));
-  }
-
-  @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody User user) {
-    return ResponseEntity.ok(userService.login(user.getUsername(), user.getPassword()));
-  }
-
-  @PostMapping("/logout")
-  public ResponseEntity<?> logout(@RequestHeader("username") String username) {
-    userService.logout(username);
-    return ResponseEntity.ok().build();
+  @GetMapping("/{username}")
+  public ResponseEntity<?> getUserProfile(@PathVariable String username) {
+    return ResponseEntity.ok(userService.getUserByUsername(username));
   }
 }

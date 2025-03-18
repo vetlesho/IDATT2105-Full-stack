@@ -27,14 +27,26 @@ const router = createRouter({
   ]
 });
 
+// Navigation guard for JWT authentication
 router.beforeEach((to, from, next) => {
-  const currentUser = authService.getCurrentUser();
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-  if (to.meta.requiresAuth && !currentUser) {
-    next('/')
+  if (requiresAuth) {
+    // Check if user is logged in and token is valid
+    if (authService.isLoggedIn()) {
+      next(); // User has valid token
+    } else {
+      // Token expired or invalid, redirect to login
+      next('/');
+    }
   } else {
-    next()
+    // For login page, check if already logged in
+    if (to.path === '/' && authService.isLoggedIn()) {
+      next('/calculator'); // Already logged in, go to calculator
+    } else {
+      next(); // Proceed to login page
+    }
   }
-})
+});
 
 export default router

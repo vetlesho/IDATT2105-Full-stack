@@ -26,6 +26,12 @@ Start mysql
 ``` 
 brew services start mysql 
 ```
+```
+mysql -u calculator_user -p calculator_db
+```
+Passord: 
+
+
 Login to mysql and create database and user
 
 ```
