@@ -39,25 +39,22 @@ public class UserService {
   }
 
 
-  public User login(String username, String password) {
-    logger.debug("Login attempt for user: '{}'", username);
-
-    try {
-      User user = getUserByUsername(username);
-
-      if (!passwordEncoder.matches(password, user.getPassword())) {
-        throw new AuthenticationException("Invalid password");
-      }
-      if (!sessionService.loginToSession(username)) {
-        throw new UserAlreadyLoggedInException("Another user is currently logged in");
-      }
-
-      logger.info("Login successful for user '{}'", username);
-      return user;
-    } catch (AuthenticationException e) {
-      logger.error("Authentication failed for user '{}'", username, e);
-      throw e;
+  public void login(String username, String password) {
+    // Get user and validate password
+    User user = getUserByUsername(username);
+    if (sessionService.isAnotherUserLoggedIn(username)) {
+      logger.warn("User {} already logged in", sessionService.getCurrentLoggedInUser());
+      throw new UserAlreadyLoggedInException("Another user is already logged in");
+    } else if (sessionService.isUserLoggedIn(username)) {
+      logger.info("User: {} already logged in, allowing to login", sessionService.getCurrentLoggedInUser());
     }
+    if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+      throw new AuthenticationException("Invalid username or password");
+    }
+
+    // Session handling is now safe since we checked for other logged in users in AuthService
+    sessionService.loginToSession(username);
+    logger.info("User '{}' logged in successfully", username);
   }
 
   public void logout(String username) {

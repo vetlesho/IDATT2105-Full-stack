@@ -6,7 +6,7 @@
         <router-link to="/contact">Contact Form</router-link>
       </div>
       <div class="user-info">
-        <span> Currently logged in as: {{ username }}</span>
+        <span> Logged in as: {{ username }}</span>
         <button @click="handleLogout" class="logout-btn">Logout</button>
       </div>
     </div>

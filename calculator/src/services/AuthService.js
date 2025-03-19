@@ -71,6 +71,10 @@ export const authService = {
     return sessionStorage.getItem('jwtToken');
   },
 
+  setToken(token) {
+    sessionStorage.setItem('jwtToken', token);
+  },
+
   isTokenExpired() {
     const token = this.getToken();
     if (!token) return true;
@@ -80,12 +84,59 @@ export const authService = {
     return expiration <= Date.now();
   },
 
+  async refreshTokenIfNeeded() {
+    try {
+      const token = this.getToken();
+      if (!token) return false;
+
+      // Check if token is about to expire (within next minute)
+      if (this.isTokenExpiringSoon()) {
+        console.log("Token is about to expire, refreshing...");
+
+        // Call the backend refresh endpoint
+        const response = await axios.post(`${API_URL}/refresh-token`, {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        // Save the new token
+        if (response.data && response.data.token) {
+          this.setToken(response.data.token);
+          console.log("Token refreshed successfully");
+          return true;
+        }
+      }
+      return !this.isTokenExpired();
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      return false;
+    }
+  },
+
+  isTokenExpiringSoon(secondsThreshold = 60) {
+    const token = this.getToken();
+    if (!token) return true;
+
+    // Get expiration time from token
+    const tokenData = this.parseJwt(token);
+    if (!tokenData || !tokenData.exp) return true;
+
+    // Calculate time remaining
+    const expiration = tokenData.exp * 1000; // convert to milliseconds
+    const currentTime = Date.now();
+    const timeRemaining = expiration - currentTime;
+    console.log(timeRemaining / 1000, " seconds left of the token.")
+
+    // Return true if token will expire within threshold
+    return timeRemaining < (secondsThreshold * 1000);
+  },
+
   parseJwt(token) {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = window.atob(base64);
-      return JSON.parse(window.atob(jsonPayload));
+      return JSON.parse(window.atob(base64));
     } catch (e) {
       return {e};
     }

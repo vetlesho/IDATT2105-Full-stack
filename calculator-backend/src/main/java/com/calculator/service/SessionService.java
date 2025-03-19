@@ -9,41 +9,46 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SessionService {
   private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
-  private final ConcurrentHashMap<String, Boolean> loggedInUsers = new ConcurrentHashMap<>();
+  private String currentLoggedInUser = null;
 
-  public boolean loginToSession(String username) {
-    if (loggedInUsers.isEmpty()) {
-      loggedInUsers.put(username, true);
-      logger.info("User '{}' is is the session", username);
-      return true;
-    }
-    if (loggedInUsers.containsKey(username)) {
-      logger.info("User '{}' is already logged in - allowing reconnection", username);
-      return true; // Allow reconnection for same user
-    }
-
-    String loggedInUser = loggedInUsers.keySet().iterator().next();
-    logger.warn("Login attempt for user '{}' failed - '{}' is already logged in",
-            username, loggedInUser);
-    return false;
+  public void loginToSession(String username) {
+    currentLoggedInUser = username;
+    logger.info("User {} is now in session", username);
   }
 
   public void logoutFromSession(String username) {
-    if (!isUserLoggedIn(username)) {
-      logger.warn("Cannot logout user '{}' - not logged in", username);
-      throw new UserNotFoundException("User not found in active sessions");
+    if (!isAnyUserLoggedIn()) {
+      logger.warn("Cannot logout - no user is logged in");
+      throw new UserNotFoundException("No user is currently logged in");
     }
 
-    loggedInUsers.remove(username);
-    logger.info("User '{}' has been logged out", username);
+    if (isAnotherUserLoggedIn(username)) {
+      logger.warn("Cannot logout user '{}' - current logged in user is '{}'",
+              username, currentLoggedInUser);
+      throw new UserNotFoundException("User not found in active session");
+    } else {
+      clearSession();
+      logger.info("User '{}' has been logged out from the session", username);
+    }
   }
 
   public boolean isUserLoggedIn(String username) {
-    return loggedInUsers.containsKey(username);
+    return username.equals(currentLoggedInUser);
   }
 
-  public void clearSessions() {
-    loggedInUsers.clear();
-    logger.info("All sessions cleared");
+  public boolean isAnyUserLoggedIn() {
+    return currentLoggedInUser != null;
+  }
+
+  public String getCurrentLoggedInUser() {
+    return currentLoggedInUser;
+  }
+
+  public boolean isAnotherUserLoggedIn(String username) {
+    return currentLoggedInUser != null && !currentLoggedInUser.equals(username);
+  }
+
+  private void clearSession() {
+    currentLoggedInUser = null;
   }
 }

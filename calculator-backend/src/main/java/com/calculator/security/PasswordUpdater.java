@@ -1,4 +1,4 @@
-/*package com.calculator.security;
+package com.calculator.security;
 
 import com.calculator.model.User;
 import com.calculator.repository.UserRepository;
@@ -12,12 +12,12 @@ import java.util.List;
 
 @Component
 public class PasswordUpdater {
-  @Autowired
+  //@Autowired
   private UserRepository userRepository;
-  @Autowired
+  //
   private PasswordEncoder passwordEncoder;
 
-  @PostConstruct
+  //@PostConstruct
   public void updateAllPasswords() {
     List<User> users = userRepository.findAll();
     for (User user : users) {
@@ -28,4 +28,4 @@ public class PasswordUpdater {
       }
     }
   }
-}*/
+}

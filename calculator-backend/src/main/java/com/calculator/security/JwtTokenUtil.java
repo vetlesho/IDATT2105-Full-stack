@@ -20,7 +20,7 @@ import java.util.function.Function;
 @Component
 public class JwtTokenUtil {
   private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
-  private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+  private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
   @Value("${jwt.expiration:300000}")
   private long jwtExpiration;
@@ -36,7 +36,7 @@ public class JwtTokenUtil {
             .setSubject(subject)
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-            .signWith(secretKey, SignatureAlgorithm.HS512)
+            .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact();
   }
 

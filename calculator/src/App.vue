@@ -5,6 +5,7 @@
 
 <script>
 import Navigation from './components/NavigationHeader.vue'
+import { authService } from './services/AuthService';
 
 export default {
   components: {
@@ -14,6 +15,23 @@ export default {
     showNavigation() {
       return this.$route.path !== '/';
     }
+  },
+  data() {
+    return {
+      tokenCheckInterval: null
+    };
+  },
+  mounted() {
+    // Check token every 30 seconds
+    this.tokenCheckInterval = setInterval(() => {
+      if (authService.isLoggedIn()) {
+        authService.refreshTokenIfNeeded();
+      }
+    }, 30000);
+  },
+  beforeUnmount() {
+    // Clean up interval
+    clearInterval(this.tokenCheckInterval);
   }
-}
+};
 </script>

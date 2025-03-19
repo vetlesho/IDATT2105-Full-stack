@@ -2,7 +2,6 @@ package com.calculator.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,12 +32,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     final String authorizationHeader = request.getHeader("Authorization");
 
-    String username = null;
-    String token = null;
+    String username;
+    String token;
 
     try {
       if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -61,22 +59,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     } catch (ExpiredJwtException e) {
       logger.error("JWT token has expired: {}", e.getMessage());
-      handleAuthError(response, "Token expired, please login again", HttpServletResponse.SC_UNAUTHORIZED);
-    } catch (MalformedJwtException | SignatureException e) {
+      handleAuthError(response, "Token expired, please login again");
+    } catch (MalformedJwtException e) {
       logger.error("Invalid JWT token: {}", e.getMessage());
-      handleAuthError(response, "Invalid token", HttpServletResponse.SC_UNAUTHORIZED);
+      handleAuthError(response, "Invalid token");
     } catch (Exception e) {
       logger.error("Authentication error: {}", e.getMessage());
-      handleAuthError(response, "Authentication error", HttpServletResponse.SC_UNAUTHORIZED);
+      handleAuthError(response, "Authentication error");
     }
   }
 
-  private void handleAuthError(HttpServletResponse response, String message, int statusCode) throws IOException {
-    response.setStatus(statusCode);
+  private void handleAuthError(HttpServletResponse response, String message) throws IOException {
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setContentType("application/json");
 
     PrintWriter out = response.getWriter();
-    out.print("{\"error\":\"" + message + "\",\"status\":" + statusCode + "}");
+    out.print("{\"error\":\"" + message + "\",\"status\":" + HttpServletResponse.SC_UNAUTHORIZED + "}");
     out.flush();
   }
 }
