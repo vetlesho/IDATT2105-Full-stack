@@ -1,4 +1,4 @@
-package com.calculator.security;
+/*package com.calculator.security;
 
 import com.calculator.model.User;
 import com.calculator.repository.UserRepository;
@@ -28,4 +28,4 @@ public class PasswordUpdater {
       }
     }
   }
-}
+}*/

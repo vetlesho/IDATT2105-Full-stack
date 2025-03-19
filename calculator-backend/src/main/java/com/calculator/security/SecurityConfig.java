@@ -1,6 +1,5 @@
 package com.calculator.security;
 
-import com.calculator.service.CostumUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,11 +17,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final CostumUserDetailsService userDetailsService;
 
-  public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CostumUserDetailsService userDetailsService) {
+  public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    this.userDetailsService = userDetailsService;
   }
 
   @Bean

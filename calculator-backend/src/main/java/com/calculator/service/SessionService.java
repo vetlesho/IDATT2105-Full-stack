@@ -4,7 +4,6 @@ import com.calculator.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SessionService {
@@ -17,7 +16,7 @@ public class SessionService {
   }
 
   public void logoutFromSession(String username) {
-    if (!isAnyUserLoggedIn()) {
+    if (!isSessionBusy()) {
       logger.warn("Cannot logout - no user is logged in");
       throw new UserNotFoundException("No user is currently logged in");
     }
@@ -36,7 +35,7 @@ public class SessionService {
     return username.equals(currentLoggedInUser);
   }
 
-  public boolean isAnyUserLoggedIn() {
+  public boolean isSessionBusy() {
     return currentLoggedInUser != null;
   }
 

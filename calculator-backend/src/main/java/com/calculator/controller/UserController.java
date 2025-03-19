@@ -1,6 +1,5 @@
 package com.calculator.controller;
 
-import com.calculator.model.User;
 import com.calculator.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

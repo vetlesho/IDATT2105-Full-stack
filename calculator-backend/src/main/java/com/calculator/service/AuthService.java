@@ -3,6 +3,7 @@ package com.calculator.service;
 import com.calculator.exception.AuthenticationException;
 import com.calculator.exception.UserAlreadyLoggedInException;
 import com.calculator.model.User;
+import com.calculator.repository.UserRepository;
 import com.calculator.security.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -19,23 +21,36 @@ import java.util.Map;
 public class AuthService {
   private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-  private final UserService userService;
+  private final UserRepository userRepository;
   private final SessionService sessionService;
   private final JwtTokenUtil jwtTokenUtil;
   private final AuthenticationManager authenticationManager;
+  private final PasswordEncoder passwordEncoder;
 
-  public AuthService(UserService userService, SessionService sessionService, JwtTokenUtil jwtTokenUtil,
-                     AuthenticationManager authenticationManager) {
-    this.userService = userService;
+  public AuthService(UserRepository userRepository,
+                     SessionService sessionService,
+                     JwtTokenUtil jwtTokenUtil,
+                     AuthenticationManager authenticationManager,
+                     PasswordEncoder passwordEncoder) {
+    this.userRepository = userRepository;
     this.sessionService = sessionService;
     this.jwtTokenUtil = jwtTokenUtil;
     this.authenticationManager = authenticationManager;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public Map<String, Object> registerUser(String username, String password) {
     logger.info("Registering user: {}", username);
     try {
-      User registeredUser = userService.register(username, password);
+
+      if (userRepository.findByUsername(username).isPresent()) {
+        throw new AuthenticationException("Username already exists");
+      }
+
+      User user = new User();
+      user.setUsername(username);
+      user.setPassword(passwordEncoder.encode(password));
+      User registeredUser = userRepository.save(user);
 
       Map<String, Object> response = new HashMap<>();
       response.put("username", registeredUser.getUsername());
@@ -65,7 +80,7 @@ public class AuthService {
               new UsernamePasswordAuthenticationToken(username, password)
       );
 
-      userService.login(username, password);
+      sessionService.loginToSession(username);
 
       // Generate JWT token
       UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -75,13 +90,10 @@ public class AuthService {
       response.put("token", token);
       response.put("username", username);
       response.put("expiresIn", 300); // 5 minutes in seconds
+      response.put("message", "Login success");
 
       logger.info("User '{}' logged in successfully", username);
       return response;
-    } catch (UserAlreadyLoggedInException e) {
-      // Re-throw this specific exception
-      logger.warn("Login failed: {}", e.getMessage());
-      throw e;
     } catch (Exception e) {
       logger.error("Login failed for user {}: {}", username, e.getMessage());
       throw new AuthenticationException("Authentication failed: " + e.getMessage());
@@ -92,9 +104,9 @@ public class AuthService {
     logger.info("Logout attempt received");
     try {
       String username = jwtTokenUtil.extractUsername(token.substring(7));
-      userService.logout(username);
+      sessionService.logoutFromSession(username);
       logger.info("User '{}' logged out successfully", username);
-      return Map.of("message", "Logged out successfully");
+      return Map.of("message", "Logout success");
     } catch (Exception e) {
       logger.error("Logout failed: {}", e.getMessage());
       throw e;
@@ -113,7 +125,8 @@ public class AuthService {
       String username = jwtTokenUtil.extractUsername(authHeader.substring(7));
 
       // Get user from database to validate they still exist
-      User user = userService.getUserByUsername(username);
+      User user = userRepository.findByUsername(username)
+              .orElseThrow(() -> new AuthenticationException("User not found: " + username));
 
       // Create UserDetails object for token generation
       UserDetails userDetails = org.springframework.security.core.userdetails.User

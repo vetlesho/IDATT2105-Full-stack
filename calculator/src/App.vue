@@ -22,12 +22,12 @@ export default {
     };
   },
   mounted() {
-    // Check token every 30 seconds
+    // Check token every 60 seconds
     this.tokenCheckInterval = setInterval(() => {
       if (authService.isLoggedIn()) {
         authService.refreshTokenIfNeeded();
       }
-    }, 30000);
+    }, 60000);
   },
   beforeUnmount() {
     // Clean up interval
